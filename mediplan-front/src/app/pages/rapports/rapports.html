@@ -1,0 +1,161 @@
+<header class="mp-entete-page">
+  <div>
+    <h1>Rapports</h1>
+    <p>Couverture des plannings et répartition des gardes sur l'année.</p>
+  </div>
+  <button mat-stroked-button (click)="exporter()" [disabled]="!rapport()">
+    <mat-icon>download</mat-icon> Exporter (Excel)
+  </button>
+</header>
+
+<div class="mp-filtres">
+  @if (services().length > 1) {
+    <mat-form-field appearance="outline">
+      <mat-select [ngModel]="serviceId()" (ngModelChange)="choisirService($event)" aria-label="Service">
+        @for (s of services(); track s.id) {
+          <mat-option [value]="s.id">{{ s.nom }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  }
+  <div class="annee">
+    <button mat-icon-button (click)="changerAnnee(-1)" aria-label="Année précédente"><mat-icon>chevron_left</mat-icon></button>
+    <strong>{{ annee() }}</strong>
+    <button mat-icon-button (click)="changerAnnee(1)" aria-label="Année suivante"><mat-icon>chevron_right</mat-icon></button>
+  </div>
+  <mat-button-toggle-group [value]="filtre()" (change)="filtre.set($event.value)" aria-label="Catégorie" hideSingleSelectionIndicator>
+    <mat-button-toggle value="tous">Tous</mat-button-toggle>
+    <mat-button-toggle value="PERSONNEL">Personnel</mat-button-toggle>
+    <mat-button-toggle value="STAGIAIRE">Stagiaires</mat-button-toggle>
+  </mat-button-toggle-group>
+</div>
+
+@if (erreur()) {
+  <p class="mp-erreur" role="alert"><mat-icon>error</mat-icon> {{ erreur() }}</p>
+}
+@if (chargement()) {
+  <mat-progress-bar mode="indeterminate" />
+}
+
+@if (rapport(); as r) {
+  <!-- ==================== Chiffres clés ==================== -->
+  <section class="chiffres">
+    <article class="mp-carte">
+      <p>Gardes planifiées</p>
+      <strong>{{ r.totalGardes }}</strong>
+      <small>sur {{ r.moisCrees }} mois de planning</small>
+    </article>
+    <article class="mp-carte">
+      <p>Couverture moyenne</p>
+      <strong>{{ r.moisCrees ? r.couvertureMoyenne + '%' : '–' }}</strong>
+      <small>places remplies / places à pourvoir</small>
+    </article>
+    <article class="mp-carte">
+      <p>Moyenne par agent</p>
+      <strong>{{ moyenne() ? (moyenne() | number: '1.0-1') : '–' }}</strong>
+      <small>gardes (agents ayant au moins une garde)</small>
+    </article>
+    <article class="mp-carte">
+      <p>Plus sollicité</p>
+      <strong class="nom">{{ plusSollicite()?.nomAffichage ?? '–' }}</strong>
+      <small>
+        @if (plusSollicite(); as a) {
+          {{ a.total }} garde{{ a.total > 1 ? 's' : '' }}
+        }
+        @if (sansGarde()) {
+          · <span class="alerte">{{ sansGarde() }} sans garde</span>
+        }
+      </small>
+    </article>
+  </section>
+
+  <!-- ==================== Couverture par mois ==================== -->
+  <section class="mp-carte bloc">
+    <h2>Couverture par mois</h2>
+    <p class="sous-titre">Part des places remplies dans chaque planning des gardes de {{ annee() }}</p>
+    <div class="histogramme" role="img" [attr.aria-label]="'Couverture mensuelle ' + annee()">
+      <div class="axe">
+        <span>100%</span><span>50%</span><span>0%</span>
+      </div>
+      <div class="barres">
+        @for (m of r.mois; track m.mois) {
+          <div
+            class="colonne"
+            [matTooltip]="m.planningCree ? (moisLongs[m.mois - 1] + ' : ' + m.couverture + '% (' + m.placesRemplies + '/' + m.placesTotales + ' places)') : (moisLongs[m.mois - 1] + ' : planning non créé')"
+          >
+            <div class="piste">
+              @if (m.planningCree) {
+                <span class="valeur" [style.bottom.%]="m.couverture">{{ m.couverture }}%</span>
+                <div class="barre" [class.faible]="m.couverture < 80" [style.height.%]="m.couverture"></div>
+              } @else {
+                <span class="absent">—</span>
+              }
+            </div>
+            <span class="libelle">{{ moisCourts[m.mois - 1] }}</span>
+          </div>
+        }
+      </div>
+    </div>
+    <p class="note"><i class="pastille faible"></i> moins de 80 % : des places restent à pourvoir</p>
+  </section>
+
+  <!-- ==================== Gardes par agent ==================== -->
+  <section class="mp-carte bloc">
+    <h2>Gardes par agent</h2>
+    <p class="sous-titre">Nombre de gardes par mois ; plus la case est foncée, plus l'agent a été sollicité.</p>
+    <div class="mp-defilement">
+      <table class="tableau">
+        <thead>
+          <tr>
+            <th class="agent">Agent</th>
+            @for (m of moisCourts; track m) {
+              <th class="mois">{{ m }}</th>
+            }
+            <th class="total">Total</th>
+            <th matTooltip="Gardes de jour / nuit / 24h">J / N / 24h</th>
+            <th matTooltip="Gardes un samedi, un dimanche ou un jour férié">WE / férié</th>
+            <th>Astreintes</th>
+            <th matTooltip="Jours de congé ou d'indisponibilité dans l'année">Absences</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (a of lignes(); track a.agentId) {
+            <tr [class.inactif]="!a.actif">
+              <th class="agent" scope="row">
+                <strong>{{ a.nomAffichage }}</strong>
+                <small>{{ a.categorie === 'STAGIAIRE' ? 'Stagiaire' : (a.profession ?? (a.actif ? '' : 'Ancien membre')) }}</small>
+              </th>
+              @for (n of a.parMois; track $index) {
+                <td
+                  class="mois"
+                  [style.background]="intensite(n)"
+                  [class.fonce]="texteFonce(n)"
+                  [matTooltip]="a.nomAffichage + ' — ' + moisLongs[$index] + ' : ' + n + ' garde' + (n > 1 ? 's' : '')"
+                >
+                  {{ n || '' }}
+                </td>
+              }
+              <td class="total">
+                <span class="jauge"><span [style.width.%]="(100 * a.total) / maxTotal()"></span></span>
+                <strong>{{ a.total }}</strong>
+                @if (ecart(a); as e) {
+                  @if (e >= 30 || e <= -30) {
+                    <small class="ecart" [class.haut]="e > 0" [matTooltip]="'Écart à la moyenne (' + (moyenne() | number: '1.0-1') + ')'">
+                      {{ e > 0 ? '+' : '' }}{{ e }}%
+                    </small>
+                  }
+                }
+              </td>
+              <td>{{ a.jour }} / {{ a.nuit }} / {{ a.h24 }}</td>
+              <td>{{ a.weekendFerie }}</td>
+              <td>{{ a.astreintes }}</td>
+              <td>{{ a.joursAbsence ? a.joursAbsence + ' j' : '' }}</td>
+            </tr>
+          } @empty {
+            <tr><td class="vide" colspan="19">Aucun agent pour ce filtre.</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+}

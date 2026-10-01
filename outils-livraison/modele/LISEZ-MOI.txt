@@ -1,0 +1,60 @@
+﻿MEDIPLAN - Planning des gardes
+==============================
+
+Rien à installer : tout est dans ce dossier.
+Le guide complet, avec des captures d'écran : « Guide d'utilisation MediPlan.pdf ».
+
+1. PREMIÈRE FOIS
+   - Si le dossier vient d'un fichier zip téléchargé : clic droit sur le zip > Propriétés >
+     cocher « Débloquer » > OK, puis « Extraire tout ».
+   - Placez le dossier MediPlan où vous voulez (par exemple dans Documents), puis
+     double-cliquez sur « Demarrer MediPlan ».
+   - Si Windows affiche « Windows a protégé votre ordinateur » : « Informations complémentaires »
+     puis « Exécuter quand même ».
+   - La première fois, la base de données est créée (une minute) et un raccourci « MediPlan »
+     apparaît sur le Bureau. MediPlan s'ouvre ensuite dans votre navigateur.
+   - Créez votre compte sur la page « Bienvenue à MediPlan ».
+
+2. CHAQUE JOUR
+   - Pas besoin de revenir dans ce dossier : utilisez le raccourci « MediPlan »
+     du Bureau, ou appuyez sur la touche Windows et tapez « MediPlan ».
+   - Pour l'avoir toujours sous la main : menu Démarrer > clic droit sur MediPlan >
+     « Épingler à la barre des tâches ».
+   - Internet n'est pas nécessaire, sauf pour envoyer les plannings par e-mail.
+   - Quand vous avez fini, vous pouvez lancer « Arreter MediPlan » (ce n'est pas obligatoire :
+     tout s'arrête aussi quand l'ordinateur s'éteint).
+
+3. ENVOI DES PLANNINGS PAR E-MAIL (une seule fois)
+   - Dans le compte Google qui enverra les plannings : Sécurité > validation en deux
+     étapes, puis « Mots de passe des applications » : créez-en un (16 lettres).
+   - Dans MediPlan : Paramètres > Envoi des e-mails : saisissez l'adresse Gmail et ces
+     16 lettres, puis « Vérifier et enregistrer ». Un e-mail de test vous est envoyé.
+   - Ne donnez jamais ce mot de passe à quelqu'un d'autre.
+
+3 bis. SUR LE TÉLÉPHONE
+   - Le téléphone doit être sur le MÊME Wi-Fi que l'ordinateur, et MediPlan doit être démarré
+     sur l'ordinateur.
+   - Dans MediPlan (sur l'ordinateur) : Paramètres > « Ouvrir MediPlan sur le téléphone » :
+     scannez le QR code avec l'appareil photo du téléphone.
+   - La première fois, Windows peut demander d'autoriser Java sur le réseau :
+     cochez « Réseaux privés » puis « Autoriser l'accès ».
+   - Hors de la maison (4G, autre Wi-Fi), le téléphone ne peut pas joindre l'ordinateur.
+
+4. SAUVEGARDES
+   - Une sauvegarde est faite automatiquement chaque jour, au premier démarrage, dans :
+       Documents\MediPlan - sauvegardes   (les 30 dernières sont gardées)
+   - « Sauvegarder MediPlan » en fait une tout de suite.
+   - Copiez de temps en temps ce dossier sur une clé USB ou un Drive : si l'ordinateur est
+     perdu ou tombe en panne, c'est ce qui permet de tout retrouver.
+   - « Restaurer une sauvegarde » remet les données d'une sauvegarde choisie
+     (les données actuelles sont d'abord sauvegardées).
+
+5. METTRE À JOUR MEDIPLAN
+   - Arrêtez MediPlan, remplacez ce dossier par la nouvelle version, redémarrez.
+   - Vos données ne sont pas dans ce dossier (elles sont dans %LOCALAPPDATA%\MediPlan) :
+     elles sont conservées.
+
+6. EN CAS DE PROBLÈME
+   - Le message affiché dans la fenêtre noire indique la cause.
+   - Journaux : %LOCALAPPDATA%\MediPlan\journaux (à envoyer à la personne qui vous a
+     fourni MediPlan).

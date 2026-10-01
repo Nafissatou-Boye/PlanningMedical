@@ -1,0 +1,51 @@
+<nav class="sidebar" [class.reduite]="reduite()" aria-label="Navigation principale">
+  <a class="marque" routerLink="/tableau-de-bord">
+    <img src="logo-mediplan.png" alt="MediPlan" width="44" height="44" />
+    @if (!reduite()) {
+      <span class="marque-texte">
+        <strong>MediPlan</strong>
+        <small>Planning médical</small>
+      </span>
+    }
+  </a>
+
+  @if (!reduite()) {
+    <p class="titre-section">Espace de travail</p>
+  }
+
+  <ul class="menu">
+    @for (item of menuPrincipal; track item.lien) {
+      <li>
+        <a
+          [routerLink]="item.lien"
+          routerLinkActive="actif"
+          [matTooltip]="reduite() ? item.libelle : ''"
+          matTooltipPosition="right"
+        >
+          <mat-icon>{{ item.icone }}</mat-icon>
+          @if (!reduite()) {
+            <span>{{ item.libelle }}</span>
+          }
+        </a>
+      </li>
+    }
+  </ul>
+
+  <ul class="menu menu-bas">
+    @for (item of menuSecondaire; track item.lien) {
+      <li>
+        <a
+          [routerLink]="item.lien"
+          routerLinkActive="actif"
+          [matTooltip]="reduite() ? item.libelle : ''"
+          matTooltipPosition="right"
+        >
+          <mat-icon>{{ item.icone }}</mat-icon>
+          @if (!reduite()) {
+            <span>{{ item.libelle }}</span>
+          }
+        </a>
+      </li>
+    }
+  </ul>
+</nav>

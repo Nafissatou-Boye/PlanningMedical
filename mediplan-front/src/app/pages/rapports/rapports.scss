@@ -1,0 +1,182 @@
+.annee {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  strong { min-width: 50px; text-align: center; font-size: 16px; }
+}
+
+.chiffres {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+  margin: 8px 0 24px;
+
+  article { padding: 18px 20px; }
+  p { margin: 0 0 6px; font-size: 14px; color: var(--mp-texte-secondaire); }
+  strong { display: block; font-size: 28px; font-weight: 700; }
+  strong.nom { font-size: 20px; line-height: 34px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  small { font-size: 12px; color: var(--mp-texte-secondaire); }
+  .alerte { color: #b26a00; font-weight: 600; }
+}
+
+.bloc {
+  padding: 20px 22px;
+  margin-bottom: 24px;
+
+  h2 { margin: 0; font-size: 18px; }
+  .sous-titre { margin: 4px 0 18px; font-size: 13px; color: var(--mp-texte-secondaire); }
+}
+
+// ---------- Histogramme (une seule série : pas de légende, le titre la nomme) ----------
+.histogramme {
+  display: flex;
+  gap: 10px;
+  height: 220px;
+}
+
+.axe {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding-bottom: 24px;
+  font-size: 11px;
+  color: var(--mp-texte-secondaire);
+}
+
+.barres {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 8px;
+  background: linear-gradient(var(--mp-bordure) 1px, transparent 1px) 0 0 / 100% calc((100% - 24px) / 2) no-repeat,
+    linear-gradient(var(--mp-bordure) 1px, transparent 1px) 0 calc((100% - 24px) / 2) / 100% 1px no-repeat;
+}
+
+.colonne {
+  display: flex;
+  flex-direction: column;
+  cursor: default;
+
+  .piste {
+    position: relative;
+    flex: 1;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    border-bottom: 1px solid var(--mp-bordure);
+  }
+
+  .barre {
+    width: min(34px, 70%);
+    border-radius: 4px 4px 0 0;
+    background: var(--mp-bleu-medical);
+    transition: height 0.3s;
+
+    &.faible { background: var(--mp-turquoise); }
+  }
+
+  &:hover .barre { filter: brightness(1.1); }
+
+  .valeur {
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin-bottom: 3px;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--mp-texte);
+  }
+
+  .absent { align-self: flex-end; padding-bottom: 2px; font-size: 11px; color: #b5c4d0; }
+  .libelle { height: 24px; padding-top: 6px; text-align: center; font-size: 11px; color: var(--mp-texte-secondaire); }
+}
+
+.note {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 10px 0 0;
+  font-size: 12px;
+  color: var(--mp-texte-secondaire);
+
+  .pastille { width: 10px; height: 10px; border-radius: 3px; background: var(--mp-turquoise); }
+}
+
+// ---------- Tableau ----------
+.tableau {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 2px;
+  font-size: 13px;
+
+  th, td { padding: 6px 8px; text-align: center; white-space: nowrap; }
+  thead th { font-size: 11px; font-weight: 600; color: var(--mp-texte-secondaire); }
+
+  .agent {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    min-width: 170px;
+    background: var(--mp-blanc);
+    text-align: left;
+
+    strong { display: block; font-size: 13px; }
+    small { font-size: 11px; font-weight: 400; color: var(--mp-texte-secondaire); }
+  }
+
+  td.mois {
+    min-width: 38px;
+    border-radius: 4px;
+    background: var(--mp-fond);
+    font-weight: 600;
+    color: var(--mp-texte);
+
+    &.fonce { color: #fff; }
+  }
+
+  .total {
+    min-width: 130px;
+    text-align: left;
+
+    strong { margin-left: 6px; }
+  }
+
+  .jauge {
+    display: inline-block;
+    width: 60px;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--mp-fond);
+    vertical-align: middle;
+    overflow: hidden;
+
+    span { display: block; height: 100%; border-radius: 3px; background: var(--mp-bleu-medical); }
+  }
+
+  .ecart {
+    margin-left: 6px;
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: var(--mp-fond);
+    font-size: 11px;
+    color: var(--mp-texte-secondaire);
+
+    &.haut { background: #fdf0dd; color: #b26a00; }
+  }
+
+  tr.inactif { opacity: 0.6; }
+  .vide { padding: 24px; color: var(--mp-texte-secondaire); }
+}
+
+@media (max-width: 1279.98px) {
+  .chiffres { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 767.98px) {
+  .chiffres { gap: 12px; article { padding: 14px; } strong { font-size: 22px; } }
+  .histogramme { height: 180px; }
+  .barres { gap: 3px; }
+  .colonne .valeur { display: none; }
+  .colonne .libelle { font-size: 9px; }
+}

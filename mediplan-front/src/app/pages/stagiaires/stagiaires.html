@@ -1,0 +1,186 @@
+<mat-tab-group
+  class="onglets"
+  [selectedIndex]="onglet()"
+  (selectedIndexChange)="choisirOnglet($event)"
+  animationDuration="150ms"
+  mat-stretch-tabs="false"
+>
+  <!-- ==================== Organisation du mois ==================== -->
+  <mat-tab>
+    <ng-template mat-tab-label><mat-icon>calendar_view_week</mat-icon> Organisation du mois</ng-template>
+
+    <header class="mp-entete-page">
+      <div>
+        <h1>Organisation des stagiaires</h1>
+        <p>Une ligne par semaine, une colonne par poste. Cliquez sur une case pour y placer un stagiaire.</p>
+      </div>
+      @if (grille()?.planningId) {
+        <div class="actions-entete">
+          <button mat-stroked-button (click)="ouvrirPdf()" [disabled]="pdfEnCours()">
+            <mat-icon>picture_as_pdf</mat-icon> Voir le PDF
+          </button>
+          <button mat-icon-button (click)="telechargerPdf()" [disabled]="pdfEnCours()" matTooltip="Télécharger le PDF" aria-label="Télécharger le PDF">
+            <mat-icon>download</mat-icon>
+          </button>
+          <button mat-stroked-button (click)="envoyer()">
+            <mat-icon>forward_to_inbox</mat-icon> Envoyer
+          </button>
+          @if (grille()!.statut === 'PUBLIE') {
+            <button mat-stroked-button (click)="publier(false)" [disabled]="envoi()">
+              <mat-icon>edit_note</mat-icon> Repasser en brouillon
+            </button>
+          } @else {
+            <button mat-flat-button class="mp-bouton-principal" (click)="publier(true)" [disabled]="envoi()">
+              <mat-icon>verified</mat-icon> Publier
+            </button>
+          }
+        </div>
+      }
+    </header>
+
+    <div class="mp-filtres">
+      @if (services().length > 1) {
+        <mat-form-field appearance="outline">
+          <mat-select [ngModel]="serviceId()" (ngModelChange)="choisirService($event)" aria-label="Service">
+            @for (s of services(); track s.id) {
+              <mat-option [value]="s.id">{{ s.nom }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      }
+
+      <div class="navigation">
+        <button mat-icon-button (click)="changerMois(-1)" aria-label="Mois précédent"><mat-icon>chevron_left</mat-icon></button>
+        <strong>{{ titreMois() }}</strong>
+        <button mat-icon-button (click)="changerMois(1)" aria-label="Mois suivant"><mat-icon>chevron_right</mat-icon></button>
+      </div>
+
+      @if (grille()?.planningId) {
+        <span class="statut" [class.publie]="grille()!.statut === 'PUBLIE'">
+          {{ grille()!.statut === 'PUBLIE' ? 'Publié' : 'Brouillon' }}
+        </span>
+        <span class="couverture" matTooltip="Cases remplies / cases du tableau">
+          <span class="barre"><span [style.width.%]="couverture()"></span></span>
+          {{ grille()!.statistiques.casesRemplies }}/{{ grille()!.statistiques.casesTotales }} cases
+          @if (grille()!.statistiques.stagiairesSansPoste > 0) {
+            · <span class="sans-poste">{{ grille()!.statistiques.stagiairesSansPoste }} stagiaire{{ grille()!.statistiques.stagiairesSansPoste > 1 ? 's' : '' }} sans poste</span>
+          }
+        </span>
+      }
+    </div>
+
+    @if (erreur()) {
+      <p class="mp-erreur" role="alert"><mat-icon>error</mat-icon> {{ erreur() }}</p>
+    }
+
+    @if (chargement()) {
+      <mat-progress-bar mode="indeterminate" />
+    } @else if (services().length === 0) {
+      <section class="mp-carte mp-vide">
+        <mat-icon>medical_services</mat-icon>
+        <p>Créez d'abord un service dans le menu « Services ».</p>
+      </section>
+    } @else if (grille(); as g) {
+      @if (g.postes.length === 0) {
+        <section class="mp-carte mp-vide">
+          <mat-icon>view_column</mat-icon>
+          <p>
+            Le service {{ g.service }} n'a encore aucun poste de stage (PME/2nd VPA, Salle Prog.1, VPA…).
+            Ajoutez-les dans « Services », rubrique « Postes du planning des stagiaires ».
+          </p>
+          <a mat-flat-button class="mp-bouton-principal" routerLink="/services">
+            <mat-icon>add</mat-icon> Ajouter des postes
+          </a>
+        </section>
+      } @else if (!g.planningId) {
+        <section class="mp-carte mp-vide">
+          <mat-icon>event_note</mat-icon>
+          <p>
+            L'organisation {{ deMois() }} n'existe pas encore pour {{ g.service }}.
+            Elle sera créée avec {{ g.semaines.length }} semaines
+            ({{ g.semaines[0]?.libelle?.toLowerCase() }} → {{ g.semaines.at(-1)?.libelle?.toLowerCase() }}), modifiables ensuite.
+          </p>
+          <button mat-flat-button class="mp-bouton-principal" (click)="creer()" [disabled]="envoi()">
+            <mat-icon>add</mat-icon> Créer l'organisation {{ deMoisTitre() }}
+          </button>
+        </section>
+      } @else {
+        <section class="mp-carte feuille">
+          <h2 class="titre-feuille">
+            ORGANISATION DES ÉTUDIANTS STAGIAIRES
+            <span>{{ titreMois() | uppercase }}</span>
+          </h2>
+          <div class="mp-defilement">
+            <table class="grille grille-stagiaires">
+              <thead>
+                <tr>
+                  <th class="col-semaine">SEMAINE</th>
+                  @for (p of g.postes; track p.posteId) {
+                    <th [class.partiel]="p.partiel" [style.background]="p.partiel ? (p.couleur ?? '#fce4d6') : null">
+                      {{ p.libelle }}
+                      @if (p.joursActifs) {
+                        <small>({{ jours(p) }})</small>
+                      }
+                    </th>
+                  }
+                </tr>
+              </thead>
+              <tbody>
+                @for (s of g.semaines; track s.periodeId) {
+                  <tr>
+                    <th class="col-semaine" scope="row">
+                      <button type="button" class="semaine" (click)="modifierSemaine(s)" [attr.aria-label]="'Modifier la semaine ' + s.libelle" matTooltip="Modifier les dates">
+                        {{ s.libelle }}
+                        <mat-icon>edit_calendar</mat-icon>
+                      </button>
+                    </th>
+                    @for (p of g.postes; track p.posteId) {
+                      <td [style.background]="p.partiel ? (p.couleur ?? '#fce4d6') : null" [class.partiel]="p.partiel">
+                        @for (pos of places(s, p); track pos) {
+                          @let nom = occupant(s, p, pos);
+                          @if (pos === 2 && nom) {
+                            <span class="sep">/</span>
+                          }
+                          <button
+                            type="button"
+                            class="place"
+                            [class.vide]="!nom"
+                            [class.secondaire]="pos === 2 && !nom"
+                            (click)="ouvrirCase(s, p, pos)"
+                            [attr.aria-label]="(nom ?? 'Place libre') + ' — ' + p.libelle + ' ' + s.libelle"
+                            [matTooltip]="pos === 2 && !nom ? 'Ajouter un 2e stagiaire' : ''"
+                          >
+                            {{ nom ?? '+' }}
+                          </button>
+                        }
+                      </td>
+                    }
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <button mat-button class="ajouter-semaine" (click)="ajouterSemaine()">
+            <mat-icon>add</mat-icon> Ajouter une semaine
+          </button>
+
+          @if (g.conges.length) {
+            <div class="conges">
+              <strong>CONGÉS :</strong>
+              @for (c of g.conges; track $index) {
+                <span>{{ c.agent }} : du {{ formatFr(c.dateDebut) }} au {{ formatFr(c.dateFin) }}</span>
+              }
+            </div>
+          }
+        </section>
+      }
+    }
+  </mat-tab>
+
+  <!-- ==================== Liste des stagiaires ==================== -->
+  <mat-tab>
+    <ng-template mat-tab-label><mat-icon>school</mat-icon> Liste des stagiaires</ng-template>
+    <app-personnel categorie="STAGIAIRE" [q]="q()" />
+  </mat-tab>
+</mat-tab-group>

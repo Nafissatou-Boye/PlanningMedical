@@ -1,0 +1,95 @@
+<h2 mat-dialog-title>
+  {{ d.titre }}
+  <small>{{ d.sousTitre }}</small>
+</h2>
+
+<mat-dialog-content>
+  @if (erreur()) {
+    <p class="mp-erreur" role="alert"><mat-icon>error</mat-icon> {{ erreur() }}</p>
+  }
+
+  @if (d.garde && d.garde.position === 1) {
+    <div class="mode">
+      <span>Places dans cette case</span>
+      <mat-button-toggle-group
+        [value]="d.garde.mode"
+        (change)="changerMode($event.value)"
+        [disabled]="envoi()"
+        aria-label="Nombre de places"
+      >
+        <mat-button-toggle value="UNIQUE">Unique</mat-button-toggle>
+        <mat-button-toggle value="BINOME">Binôme</mat-button-toggle>
+      </mat-button-toggle-group>
+    </div>
+  }
+
+  @if (d.occupant) {
+    <div class="occupee">
+      <mat-icon>lock</mat-icon>
+      <div>
+        <strong>Place attribuée à {{ d.occupant }}</strong>
+        <p>Une place attribuée est verrouillée. Libérez-la pour la donner à quelqu'un d'autre.</p>
+      </div>
+    </div>
+  } @else {
+    <mat-form-field appearance="outline" class="recherche">
+      <mat-icon matPrefix>search</mat-icon>
+      <input
+        matInput
+        [placeholder]="d.stage ? 'Rechercher un stagiaire…' : 'Rechercher un agent…'"
+        [ngModel]="recherche()"
+        (ngModelChange)="recherche.set($event)"
+        cdkFocusInitial
+      />
+    </mat-form-field>
+
+    @if (chargement()) {
+      <mat-progress-bar mode="indeterminate" />
+    }
+
+    <ul class="candidats">
+      @for (c of filtres(); track c.agentId) {
+        <li>
+          <button type="button" [disabled]="!c.disponible || envoi()" (click)="choisir(c)">
+            <span class="avatar">{{ c.nomAffichage.replace('Dr ', '').charAt(0) }}</span>
+            <span class="identite">
+              <strong>{{ c.nomAffichage }}</strong>
+              <small>
+                {{ c.profession ?? c.nomComplet }}
+                @if (c.categorie === 'STAGIAIRE' && !d.stage) {
+                  · stagiaire
+                }
+              </small>
+            </span>
+            @if (c.disponible) {
+              <span class="compteur">{{ c.gardesDuMois }} {{ unite }}{{ c.gardesDuMois > 1 ? 's' : '' }} ce mois</span>
+            } @else {
+              <span class="raison">{{ c.raison }}</span>
+            }
+          </button>
+        </li>
+      } @empty {
+        @if (!chargement()) {
+          <li class="aucun">Aucun {{ d.stage ? 'stagiaire' : 'agent' }} disponible pour cette place.</li>
+        }
+      }
+    </ul>
+
+    @if (nbIndisponibles() > 0) {
+      <button mat-button type="button" (click)="afficherIndisponibles.set(!afficherIndisponibles())">
+        {{ afficherIndisponibles() ? 'Masquer' : 'Voir' }} les {{ nbIndisponibles() }} agent{{
+          nbIndisponibles() > 1 ? 's' : ''
+        }} indisponible{{ nbIndisponibles() > 1 ? 's' : '' }}
+      </button>
+    }
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close [disabled]="envoi()">Fermer</button>
+  @if (d.occupant) {
+    <button mat-flat-button class="mp-bouton-danger" (click)="liberer()" [disabled]="envoi()">
+      <mat-icon>lock_open</mat-icon> Libérer la place
+    </button>
+  }
+</mat-dialog-actions>

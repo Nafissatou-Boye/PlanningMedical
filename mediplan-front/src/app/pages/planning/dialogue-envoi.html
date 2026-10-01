@@ -1,0 +1,107 @@
+<h2 mat-dialog-title>
+  Envoyer le planning par e-mail
+  <small>{{ d.titre }}</small>
+</h2>
+
+<mat-dialog-content>
+  @if (!emailConfigure() && !resultats()) {
+    <div class="non-configure">
+      <mat-icon>mail_lock</mat-icon>
+      <div>
+        <strong>L'envoi des e-mails n'est pas encore configuré.</strong>
+        <p>Indiquez une fois pour toutes l'adresse Gmail qui enverra les plannings.</p>
+        <a mat-flat-button class="mp-bouton-principal" routerLink="/parametres" fragment="envoi-email" mat-dialog-close>
+          <mat-icon>settings</mat-icon> Configurer l'envoi
+        </a>
+      </div>
+    </div>
+  }
+  @if (erreur()) {
+    <p class="mp-erreur" role="alert"><mat-icon>error</mat-icon> {{ erreur() }}</p>
+  }
+
+  @if (resultats(); as r) {
+    <p class="bilan" [class]="etatBilan()">
+      <mat-icon>{{ etatBilan() === 'ok' ? 'mark_email_read' : etatBilan() === 'partiel' ? 'warning' : 'error' }}</mat-icon>
+      {{ nbEnvoyes() }} e-mail{{ nbEnvoyes() > 1 ? 's' : '' }} envoyé{{ nbEnvoyes() > 1 ? 's' : '' }} sur {{ r.length }}.
+    </p>
+    <ul class="liste">
+      @for (x of r; track x.agentId) {
+        <li>
+          <mat-icon [class.ok]="x.statut === 'ENVOYE'" [class.ko]="x.statut !== 'ENVOYE'">
+            {{ x.statut === 'ENVOYE' ? 'check_circle' : 'error' }}
+          </mat-icon>
+          <span class="nom">
+            <strong>{{ x.nomAffichage }}</strong>
+            <small>{{ x.erreur ?? x.email }}</small>
+          </span>
+        </li>
+      }
+    </ul>
+  } @else {
+    <p class="aide">
+      @if (stagiaires) {
+        Chaque stagiaire reçoit le PDF en pièce jointe et, dans le message, la liste de ses propres postes.
+      } @else {
+        Chaque agent reçoit le PDF en pièce jointe et, dans le message, la liste de ses propres gardes.
+      }
+    </p>
+
+    @if (chargement()) {
+      <mat-progress-bar mode="indeterminate" />
+    } @else {
+      <div class="entete-liste">
+        <mat-checkbox [checked]="toutChoisi()" (change)="toutBasculer($event.checked)">Tout sélectionner</mat-checkbox>
+        <span>{{ nbChoisis() }} sélectionné{{ nbChoisis() > 1 ? 's' : '' }}</span>
+      </div>
+      <ul class="liste">
+        @for (x of destinataires(); track x.agentId) {
+          <li [class.inactif]="!x.email">
+            <mat-checkbox
+              [checked]="choisis().has(x.agentId)"
+              [disabled]="!x.email"
+              (change)="basculer(x.agentId, $event.checked)"
+              [aria-label]="x.nomAffichage"
+            />
+            <span class="nom">
+              <strong>{{ x.nomAffichage }}</strong>
+              <small>{{ x.email ?? "Pas d'e-mail : ajoutez-le dans « Personnel »" }}</small>
+            </span>
+            <span class="compte">
+              {{ x.gardes }} {{ stagiaires ? 'poste' : 'garde' }}{{ x.gardes > 1 ? 's' : '' }}@if (x.astreintes) {
+                · {{ x.astreintes }} astreinte{{ x.astreintes > 1 ? 's' : '' }}
+              }
+              @if (x.dernierStatut === 'ENVOYE') {
+                <small class="deja">envoyé le {{ x.dernierEnvoi | date: 'dd/MM à HH:mm' }}</small>
+              }
+            </span>
+          </li>
+        }
+      </ul>
+
+      <mat-form-field appearance="outline" class="message">
+        <mat-label>Message ajouté à l'e-mail (facultatif)</mat-label>
+        <textarea
+          matInput
+          rows="2"
+          maxlength="1000"
+          [ngModel]="message()"
+          (ngModelChange)="message.set($event)"
+          placeholder="Ex. : Merci de signaler tout échange de garde au secrétariat."
+        ></textarea>
+      </mat-form-field>
+    }
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  @if (resultats()) {
+    <button mat-flat-button class="mp-bouton-principal" mat-dialog-close>Terminé</button>
+  } @else {
+    <button mat-button mat-dialog-close [disabled]="envoi()">Annuler</button>
+    <button mat-flat-button class="mp-bouton-principal" (click)="envoyer()" [disabled]="!nbChoisis() || envoi() || !emailConfigure()">
+      <mat-icon>send</mat-icon>
+      {{ envoi() ? 'Envoi en cours…' : 'Envoyer à ' + nbChoisis() + ' personne' + (nbChoisis() > 1 ? 's' : '') }}
+    </button>
+  }
+</mat-dialog-actions>

@@ -1,0 +1,36 @@
+# Java / Maven
+target/
+*.class
+
+# Spring / environnement
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Node / Angular
+node_modules/
+dist/
+.angular/
+.cache/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Archives
+*.zip
+
+# Secrets / certificats
+*.pem
+*.key
+*.p12
+*.jks
+livraison/

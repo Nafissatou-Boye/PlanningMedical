@@ -1,0 +1,182 @@
+<header class="entete">
+  <div>
+    <h1>Bonjour {{ profil()?.nomUtilisateur }},</h1>
+    <p>Voici un aperçu de l'activité du service {{ service() || profil()?.service }}.</p>
+  </div>
+  <a mat-flat-button class="mp-bouton-principal ajouter" routerLink="/planning" aria-label="Ajouter une garde">
+    <mat-icon>add</mat-icon>
+    <span class="libelle">Ajouter une garde</span>
+  </a>
+</header>
+
+@if (erreur()) {
+  <p class="mp-erreur" role="alert"><mat-icon>error</mat-icon> {{ erreur() }}</p>
+}
+
+<!-- ==================== Indicateurs ==================== -->
+<section class="indicateurs">
+  @let i = indicateurs();
+  <article class="mp-carte kpi">
+    <div class="haut">
+      <span class="icone bleu"><mat-icon>group</mat-icon></span>
+      @if (i?.stagiairesActifs) {
+        <span class="tendance neutre">+ {{ i!.stagiairesActifs }} stagiaire{{ i!.stagiairesActifs > 1 ? 's' : '' }}</span>
+      }
+    </div>
+    <p>Personnel actif</p>
+    <strong>{{ i?.personnelActif ?? '–' }}</strong> <small>membre{{ (i?.personnelActif ?? 0) > 1 ? 's' : '' }}</small>
+  </article>
+
+  <article class="mp-carte kpi">
+    <div class="haut">
+      <span class="icone turquoise"><mat-icon>calendar_month</mat-icon></span>
+      @if (evolutionGardes() !== null) {
+        <span class="tendance" [class.baisse]="evolutionGardes()! < 0" matTooltip="Par rapport au mois précédent">
+          <mat-icon>{{ evolutionGardes()! < 0 ? 'arrow_downward' : 'arrow_upward' }}</mat-icon>
+          {{ evolutionGardes()!.toString().replace('.', ',').replace('-', '') }}%
+        </span>
+      }
+    </div>
+    <p>Gardes ce mois</p>
+    <strong>{{ i?.gardesDuMois ?? '–' }}</strong> <small>planifiée{{ (i?.gardesDuMois ?? 0) > 1 ? 's' : '' }}</small>
+  </article>
+
+  <article class="mp-carte kpi">
+    <div class="haut">
+      <span class="icone violet"><mat-icon>schedule</mat-icon></span>
+      <span class="tendance neutre">Maintenant</span>
+    </div>
+    <p>Gardes en cours</p>
+    <strong>{{ i?.enGardeMaintenant ?? '–' }}</strong> <small>professionnel{{ (i?.enGardeMaintenant ?? 0) > 1 ? 's' : '' }}</small>
+  </article>
+
+  <article class="mp-carte kpi">
+    <div class="haut">
+      <span class="icone orange"><mat-icon>verified</mat-icon></span>
+      @if (evolutionCouverture() !== null) {
+        <span class="tendance" [class.baisse]="evolutionCouverture()! < 0" matTooltip="Points par rapport au mois précédent">
+          <mat-icon>{{ evolutionCouverture()! < 0 ? 'arrow_downward' : 'arrow_upward' }}</mat-icon>
+          {{ evolutionCouverture()! < 0 ? -evolutionCouverture()! : evolutionCouverture() }} pts
+        </span>
+      } @else if (i && !i.planningCree) {
+        <a class="tendance alerte" routerLink="/planning">Planning à créer</a>
+      } @else if (i && i.placesLibres > 0) {
+        <span class="tendance alerte">{{ i.placesLibres }} à pourvoir</span>
+      }
+    </div>
+    <p>Taux de couverture</p>
+    <strong>{{ i && i.planningCree ? i.couverture + '%' : '–' }}</strong> <small>ce mois</small>
+  </article>
+</section>
+
+<div class="colonnes">
+  <!-- ==================== Calendrier ==================== -->
+  <section class="mp-carte calendrier">
+    <div class="titre">
+      <div>
+        <h2>Planning des gardes</h2>
+        <p>Places remplies / places à pourvoir, jour par jour</p>
+      </div>
+      <div class="commandes">
+        <mat-button-toggle-group [value]="vue()" (change)="choisirVue($event.value)" aria-label="Vue" hideSingleSelectionIndicator>
+          <mat-button-toggle value="mois">Mois</mat-button-toggle>
+          <mat-button-toggle value="semaine">Semaine</mat-button-toggle>
+        </mat-button-toggle-group>
+        <button mat-stroked-button class="fleche" (click)="precedent()" aria-label="Précédent"><mat-icon>chevron_left</mat-icon></button>
+        <strong class="periode">{{ vue() === 'mois' ? titreMois() : titreSemaine() }}</strong>
+        <button mat-stroked-button class="fleche" (click)="suivant()" aria-label="Suivant"><mat-icon>chevron_right</mat-icon></button>
+      </div>
+    </div>
+
+    <div class="legende">
+      <span><i class="jour"></i>Jour</span>
+      <span><i class="nuit"></i>Nuit</span>
+      <span><i class="h24"></i>24h</span>
+      <span><i class="astreinte"></i>Astreinte</span>
+      <span><i class="incomplet"></i>Places à pourvoir</span>
+      <span><i class="ferie"></i>Jour férié</span>
+    </div>
+
+    @if (chargement()) {
+      <mat-progress-bar mode="indeterminate" />
+    }
+    @if (grille() && !grille()!.planningId) {
+      <p class="non-cree">
+        <mat-icon>info</mat-icon>
+        Le planning {{ deMois() }} n'est pas encore créé.
+        <a routerLink="/planning">Le préparer</a>
+      </p>
+    }
+
+    <div class="jours-semaine">
+      @for (j of ['LUN', 'MAR', 'MER', 'JEU', 'VEN', 'SAM', 'DIM']; track j) {
+        <span>{{ j }}</span>
+      }
+    </div>
+
+    <div class="grille" [class.semaine]="vue() === 'semaine'">
+      @for (c of vue() === 'mois' ? casesMois() : casesSemaine(); track c.date) {
+        <button
+          type="button"
+          class="case-jour"
+          [class.hors-mois]="c.horsMois"
+          [class.weekend]="c.weekend"
+          [class.ferie]="c.ferie"
+          (click)="ouvrirPlanning()"
+          [attr.aria-label]="c.numero + (c.ferie ? ' ' + c.ferie : '') + (nbAPourvoir(c) ? ', ' + nbAPourvoir(c) + ' place(s) à pourvoir' : '')"
+        >
+          <span class="numero" [class.aujourdhui]="c.aujourdhui">{{ c.numero }}</span>
+          @if (c.ferie) {
+            <span class="pastille ferie" [matTooltip]="c.ferie">{{ c.ferie }}</span>
+          }
+          @for (p of c.pastilles; track p.libelle) {
+            <span
+              class="pastille {{ p.classe }}"
+              [class.incomplet]="p.total !== undefined && p.remplies! < p.total"
+              [matTooltip]="(p.noms ?? []).join('\n')"
+              matTooltipClass="infobulle-lignes"
+            >
+              <span class="texte">{{ p.libelle }}</span>
+              @if (p.total !== undefined) {
+                <span class="compte">{{ p.remplies }}/{{ p.total }}</span>
+              }
+            </span>
+            @if (vue() === 'semaine') {
+              @for (n of p.noms ?? []; track $index) {
+                <small class="nom">{{ n }}</small>
+              }
+            }
+          }
+        </button>
+      }
+    </div>
+  </section>
+
+  <!-- ==================== Équipe aujourd'hui ==================== -->
+  <section class="mp-carte equipe">
+    <div class="titre">
+      <div>
+        <h2>Disponibilités</h2>
+        <p>Équipe aujourd'hui</p>
+      </div>
+      @if ((indicateurs()?.equipe?.length ?? 0) > 6) {
+        <button mat-button (click)="equipeComplete.set(!equipeComplete())">{{ equipeComplete() ? 'Réduire' : 'Voir tout' }}</button>
+      }
+    </div>
+    <ul>
+      @for (m of equipeVisible(); track m.agentId) {
+        <li>
+          <span class="avatar {{ statuts[m.statut].classe }}">{{ initiales(m) }}</span>
+          <span class="identite">
+            <strong>{{ m.nomAffichage }}</strong>
+            <small>{{ m.detail ?? m.profession ?? (m.categorie === 'STAGIAIRE' ? 'Stagiaire' : '') }}</small>
+          </span>
+          <span class="statut {{ statuts[m.statut].classe }}">{{ statuts[m.statut].libelle }}</span>
+        </li>
+      } @empty {
+        <li class="vide">Aucun membre actif dans ce service.</li>
+      }
+    </ul>
+    <a mat-stroked-button class="gerer" routerLink="/conges"><mat-icon>event_busy</mat-icon> Gérer les disponibilités</a>
+  </section>
+</div>

@@ -1,0 +1,123 @@
+<h2 mat-dialog-title>
+  @if (d.agent) {
+    Modifier {{ d.agent.nomAffichage }}
+  } @else {
+    {{ estStagiaire() ? 'Nouveau stagiaire' : 'Nouveau membre du personnel' }}
+  }
+</h2>
+
+<mat-dialog-content>
+  @if (erreur()) {
+    <p class="mp-erreur" role="alert"><mat-icon>error</mat-icon> {{ erreur() }}</p>
+  }
+
+  <form id="form-agent" [formGroup]="f" (ngSubmit)="valider()" class="grille">
+    <div class="categorie">
+      <mat-button-toggle-group formControlName="categorie" aria-label="Catégorie">
+        <mat-button-toggle value="PERSONNEL">Personnel</mat-button-toggle>
+        <mat-button-toggle value="STAGIAIRE">Stagiaire</mat-button-toggle>
+      </mat-button-toggle-group>
+    </div>
+
+    <p class="sous-titre">Identité</p>
+    <mat-form-field appearance="outline">
+      <mat-label>Titre</mat-label>
+      <mat-select formControlName="titre">
+        <mat-option value="">Aucun</mat-option>
+        @for (t of titres; track t) {
+          <mat-option [value]="t">{{ t }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Matricule</mat-label>
+      <input matInput formControlName="matricule" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Prénom</mat-label>
+      <input matInput formControlName="prenom" autocomplete="off" />
+      <mat-error>Le prénom est obligatoire.</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Nom</mat-label>
+      <input matInput formControlName="nom" autocomplete="off" />
+      <mat-error>Le nom est obligatoire.</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="pleine">
+      <mat-label>Nom affiché dans le planning</mat-label>
+      <input matInput formControlName="nomAffichage" [placeholder]="nomAffichageAuto()" />
+      <mat-hint>Tel qu'il apparaîtra dans le PDF. Vide : « {{ nomAffichageAuto() || 'Dr Bara Aw' }} »</mat-hint>
+    </mat-form-field>
+
+    <p class="sous-titre">Rattachement</p>
+    <mat-form-field appearance="outline">
+      <mat-label>Profession</mat-label>
+      <mat-select formControlName="professionId">
+        <mat-option [value]="null">Non renseignée</mat-option>
+        @for (p of d.professions; track p.id) {
+          <mat-option [value]="p.id">{{ p.libelle }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Service(s)</mat-label>
+      <mat-select formControlName="serviceIds" multiple>
+        @for (s of servicesActifs; track s.id) {
+          <mat-option [value]="s.id">{{ s.nom }}</mat-option>
+        }
+      </mat-select>
+      <mat-error>Choisissez au moins un service.</mat-error>
+    </mat-form-field>
+
+    @if (estStagiaire()) {
+      <p class="sous-titre">Stage</p>
+      <mat-form-field appearance="outline">
+        <mat-label>Niveau</mat-label>
+        <mat-select formControlName="niveau">
+          <mat-option value="">Non renseigné</mat-option>
+          @for (n of niveaux; track n) {
+            <mat-option [value]="n">{{ n }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Établissement d'origine</mat-label>
+        <input matInput formControlName="etablissementOrigine" placeholder="UCAD, UGB…" />
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="pleine">
+        <mat-label>Période de stage</mat-label>
+        <mat-date-range-input [rangePicker]="periode">
+          <input matStartDate formControlName="debutStage" placeholder="Début" />
+          <input matEndDate formControlName="finStage" placeholder="Fin" />
+        </mat-date-range-input>
+        <mat-hint>JJ/MM/AAAA – JJ/MM/AAAA. Hors de ces dates, le stagiaire n'est proposé nulle part.</mat-hint>
+        <mat-datepicker-toggle matIconSuffix [for]="periode" />
+        <mat-date-range-picker #periode />
+      </mat-form-field>
+    }
+
+    <p class="sous-titre">Contact (pour l'envoi du planning)</p>
+    <mat-form-field appearance="outline">
+      <mat-label>E-mail</mat-label>
+      <input matInput type="email" formControlName="email" />
+      <mat-error>Adresse e-mail invalide.</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Téléphone</mat-label>
+      <input matInput type="tel" formControlName="telephone" placeholder="77 000 00 00" />
+    </mat-form-field>
+
+    @if (d.agent) {
+      <mat-slide-toggle formControlName="actif" class="pleine">
+        Actif (un agent inactif n'est plus proposé dans les plannings)
+      </mat-slide-toggle>
+    }
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" mat-dialog-close [disabled]="envoi()">Annuler</button>
+  <button mat-flat-button class="mp-bouton-principal" type="submit" form="form-agent" [disabled]="envoi()">
+    Enregistrer
+  </button>
+</mat-dialog-actions>

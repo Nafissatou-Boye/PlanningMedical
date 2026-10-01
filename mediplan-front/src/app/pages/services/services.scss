@@ -1,0 +1,169 @@
+.service {
+  margin-bottom: 20px;
+  padding: 24px;
+
+  &.archive {
+    opacity: 0.7;
+  }
+}
+
+.service-entete {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+
+  h2 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 4px;
+    font-size: 20px;
+  }
+
+  p {
+    display: flex;
+    gap: 16px;
+    margin: 0;
+    font-size: 13px;
+    color: var(--mp-texte-secondaire);
+  }
+}
+
+.bloc {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--mp-bordure);
+}
+
+.bloc-titre {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+
+  h3 {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--mp-bleu-medical);
+  }
+}
+
+.sous-service {
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  border-radius: 12px;
+  background: var(--mp-fond);
+
+  &.archive {
+    opacity: 0.6;
+  }
+}
+
+.ss-entete {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .espace {
+    flex: 1;
+  }
+}
+
+.plages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 4px;
+}
+
+.plage {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid var(--mp-bordure);
+  border-radius: 10px;
+  background: var(--mp-blanc);
+  color: var(--mp-texte);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--mp-turquoise);
+  }
+
+  &.archive {
+    opacity: 0.5;
+    text-decoration: line-through;
+  }
+
+  &.vide {
+    border-style: dashed;
+    color: var(--mp-bleu-medical);
+  }
+
+  .horaires {
+    color: var(--mp-texte-secondaire);
+  }
+
+  sup {
+    font-size: 10px;
+    color: var(--mp-bleu-medical);
+  }
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  .binome {
+    display: inline-flex;
+    color: var(--mp-bleu-medical);
+  }
+}
+
+.aucun {
+  margin: 4px 0;
+  font-size: 13px;
+  color: var(--mp-texte-secondaire);
+}
+
+.apercu {
+  margin-top: 12px;
+
+  .apercu-titre {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 12px;
+    color: var(--mp-texte-secondaire);
+  }
+
+  table {
+    border-collapse: collapse;
+    font-family: 'Times New Roman', serif;
+    font-size: 12px;
+  }
+
+  th {
+    padding: 4px 10px;
+    border: 1px solid #333;
+    background: var(--mp-blanc);
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 599.98px) {
+  .service {
+    padding: 16px;
+  }
+
+  .service-entete {
+    flex-direction: column;
+  }
+}

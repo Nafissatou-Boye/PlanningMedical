@@ -1,0 +1,68 @@
+<header class="mp-entete-page">
+  <div>
+    <h1>Centre d'aide</h1>
+    <p>Les réponses aux questions courantes, et où en est la configuration de MediPlan.</p>
+  </div>
+</header>
+
+<div class="colonnes">
+  <!-- ==================== Questions fréquentes ==================== -->
+  <section class="faq">
+    <mat-form-field appearance="outline" class="recherche">
+      <mat-icon matPrefix>search</mat-icon>
+      <input matInput placeholder="Rechercher : congé, binôme, e-mail, PDF…" [value]="recherche()" (input)="recherche.set($any($event.target).value)" />
+      @if (recherche()) {
+        <button matSuffix mat-icon-button (click)="recherche.set('')" aria-label="Effacer"><mat-icon>close</mat-icon></button>
+      }
+    </mat-form-field>
+
+    <div class="themes">
+      @for (t of themes; track t.theme) {
+        <button type="button" class="theme" [class.actif]="theme() === t.theme" (click)="choisirTheme(t.theme)">
+          <mat-icon>{{ t.icone }}</mat-icon> {{ t.theme }}
+        </button>
+      }
+    </div>
+
+    <mat-accordion displayMode="flat" class="accordeon">
+      @for (qu of questions(); track qu.question) {
+        <mat-expansion-panel [expanded]="q() === qu.question">
+          <mat-expansion-panel-header>
+            <mat-panel-title>{{ qu.question }}</mat-panel-title>
+          </mat-expansion-panel-header>
+          <p class="reponse" [innerHTML]="qu.reponse"></p>
+          @if (qu.lien) {
+            <a mat-button [routerLink]="qu.lien.route" class="lien">{{ qu.lien.libelle }} <mat-icon iconPositionEnd>arrow_forward</mat-icon></a>
+          }
+        </mat-expansion-panel>
+      } @empty {
+        <p class="aucune">Aucune réponse pour « {{ recherche() }} ». Essayez un autre mot.</p>
+      }
+    </mat-accordion>
+  </section>
+
+  <!-- ==================== Démarrage ==================== -->
+  <aside class="mp-carte demarrage">
+    <h2>Bien démarrer</h2>
+    @if (etapes(); as l) {
+      <p class="progression">{{ nbFaites() }} étape{{ nbFaites() > 1 ? 's' : '' }} sur {{ l.length }}</p>
+      <div class="barre"><span [style.width.%]="(100 * nbFaites()) / l.length"></span></div>
+      <ol>
+        @for (e of l; track e.titre) {
+          <li [class.fait]="e.fait">
+            <mat-icon class="etat">{{ e.fait ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+            <span class="texte">
+              <strong>{{ e.titre }}</strong>
+              <small>{{ e.detail }}</small>
+            </span>
+            @if (!e.fait && e.lien) {
+              <a mat-button [routerLink]="e.lien" class="aller">{{ e.action }}</a>
+            }
+          </li>
+        }
+      </ol>
+    } @else {
+      <mat-progress-bar mode="indeterminate" />
+    }
+  </aside>
+</div>

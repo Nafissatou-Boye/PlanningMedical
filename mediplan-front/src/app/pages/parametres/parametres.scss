@@ -1,0 +1,170 @@
+.feries {
+  padding: 24px;
+  max-width: 860px;
+}
+
+.titre {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+
+  h2 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-size: 18px;
+  }
+
+  p {
+    margin: 4px 0 0;
+    color: var(--mp-texte-secondaire);
+  }
+}
+
+.annee {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  strong {
+    min-width: 50px;
+    text-align: center;
+    font-size: 18px;
+  }
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  margin: 18px 0 12px;
+
+  .aide {
+    font-size: 12px;
+    color: var(--mp-texte-secondaire);
+  }
+}
+
+.info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 12px 0 0;
+  color: var(--mp-vert-texte);
+}
+
+.lunaires {
+  display: flex;
+  gap: 10px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  border-radius: var(--mp-rayon-petit);
+  background: var(--mp-fond);
+  font-size: 14px;
+
+  mat-icon {
+    color: var(--mp-bleu-medical);
+  }
+}
+
+.puces {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.puce {
+  padding: 4px 12px;
+  border: 1px dashed var(--mp-turquoise);
+  border-radius: 20px;
+  background: var(--mp-blanc);
+  font: inherit;
+  font-size: 13px;
+  color: var(--mp-bleu-medical);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--mp-bleu-ciel);
+  }
+}
+
+.formulaire {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0 12px;
+
+  .libelle {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  button {
+    height: 52px;
+    margin-top: 2px;
+  }
+}
+
+.liste {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 4px;
+    border-bottom: 1px solid var(--mp-bordure);
+
+    &.en-edition {
+      background: var(--mp-fond);
+    }
+
+    &.vide {
+      justify-content: center;
+      color: var(--mp-texte-secondaire);
+    }
+  }
+
+  .jour {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 54px;
+    padding: 4px 0;
+    border-radius: 10px;
+    background: #fff4ec;
+    color: #c0621e;
+
+    strong {
+      font-size: 18px;
+      line-height: 1.1;
+    }
+
+    small {
+      font-size: 11px;
+    }
+  }
+
+  .nom {
+    flex: 1;
+
+    strong {
+      display: block;
+    }
+
+    small {
+      color: var(--mp-texte-secondaire);
+    }
+
+    .we {
+      color: #b26a00;
+    }
+  }
+}

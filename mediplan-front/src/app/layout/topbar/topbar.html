@@ -1,0 +1,129 @@
+<header class="topbar" [class.mobile]="mobile()" [class.recherche-ouverte]="mobile() && rechercheOuverte()">
+  @if (peutRevenir() && !(mobile() && rechercheOuverte())) {
+    <button mat-icon-button class="bouton-carre retour" (click)="retour()" aria-label="Retour à la page précédente" matTooltip="Retour (Alt + ←)">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+  }
+  @if (mobile() && !rechercheOuverte()) {
+    <button mat-icon-button class="bouton-menu" (click)="menu.emit()" aria-label="Ouvrir le menu">
+      <mat-icon>menu</mat-icon>
+    </button>
+    <a class="marque" routerLink="/tableau-de-bord">
+      <img src="logo-mediplan.png" alt="" width="34" height="34" />
+      <strong>MediPlan</strong>
+    </a>
+  }
+
+  @if (!mobile() || rechercheOuverte()) {
+    <label class="recherche">
+      <mat-icon>search</mat-icon>
+      <input
+        #champ
+        type="text"
+        placeholder="Rechercher un membre, un service, une page…"
+        aria-label="Recherche"
+        [value]="texte()"
+        (input)="texte.set($any($event.target).value)"
+        (focus)="preparer()"
+        [matAutocomplete]="auto"
+      />
+      @if (!mobile()) {
+        <kbd>Ctrl K</kbd>
+      } @else {
+        <button mat-icon-button type="button" (click)="rechercheOuverte.set(false); texte.set('')" aria-label="Fermer la recherche">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+    </label>
+    <mat-autocomplete #auto="matAutocomplete" (optionSelected)="choisir($event)" [displayWith]="afficher" class="panneau-recherche">
+      @for (r of resultats(); track r.type + r.titre + r.route) {
+        <mat-option [value]="r">
+          <span class="resultat">
+            <mat-icon>{{ r.icone }}</mat-icon>
+            <span class="textes">
+              <strong>{{ r.titre }}</strong>
+              <small>{{ r.sousTitre }}</small>
+            </span>
+            <span class="type">{{ r.type }}</span>
+          </span>
+        </mat-option>
+      }
+      @if (texte().length >= 2 && resultats().length === 0) {
+        <mat-option disabled>Aucun résultat pour « {{ texte() }} »</mat-option>
+      }
+    </mat-autocomplete>
+  }
+
+  @if (!mobile() || !rechercheOuverte()) {
+    <div class="actions">
+      @if (mobile()) {
+        <button mat-icon-button class="bouton-carre" (click)="ouvrirRechercheMobile()" aria-label="Rechercher">
+          <mat-icon>search</mat-icon>
+        </button>
+      }
+      <button
+        mat-icon-button
+        class="bouton-carre"
+        [class.urgent]="notifications.urgentes() > 0"
+        aria-label="Notifications"
+        [matMenuTriggerFor]="menuNotifications"
+        (menuOpened)="ouvrirNotifications()"
+        [matBadge]="notifications.nonLues() || null"
+        matBadgeSize="small"
+        matBadgeColor="warn"
+      >
+        <mat-icon>notifications</mat-icon>
+      </button>
+
+      <mat-menu #menuNotifications="matMenu" xPosition="before" class="panneau-notifications">
+        <div class="entete-notifications" (click)="$event.stopPropagation()">
+          <strong>Notifications</strong>
+          @if (notifications.nonLues()) {
+            <button type="button" class="tout-lire" (click)="notifications.toutLire()">Tout marquer comme lu</button>
+          }
+        </div>
+        @for (n of notifications.liste(); track n.cle) {
+          <button mat-menu-item class="notification {{ n.niveau.toLowerCase() }}" [class.lue]="notifications.estLue(n)" (click)="suivre(n)">
+            <span class="contenu">
+              <span class="icone"><mat-icon>{{ n.icone }}</mat-icon></span>
+              <span class="textes">
+                <strong>{{ n.titre }}</strong>
+                <small>{{ n.detail }}</small>
+              </span>
+              @if (!notifications.estLue(n)) {
+                <i class="point" aria-label="Non lue"></i>
+              }
+            </span>
+          </button>
+        } @empty {
+          <div class="aucune" (click)="$event.stopPropagation()">
+            <mat-icon>notifications_off</mat-icon>
+            Rien à signaler : tout est à jour.
+          </div>
+        }
+      </mat-menu>
+
+      <button class="profil" [matMenuTriggerFor]="menuProfil" aria-label="Menu du profil">
+        <span class="avatar">{{ initiales() }}</span>
+        @if (!mobile()) {
+          <span class="profil-texte">
+            <strong>{{ nomUtilisateur() }}</strong>
+            <small>{{ fonction() }}</small>
+          </span>
+          <mat-icon class="chevron">chevron_right</mat-icon>
+        }
+      </button>
+
+      <mat-menu #menuProfil="matMenu" xPosition="before">
+        <a mat-menu-item routerLink="/parametres">
+          <mat-icon>settings</mat-icon>
+          <span>Paramètres</span>
+        </a>
+        <button mat-menu-item (click)="deconnexion.emit()">
+          <mat-icon>logout</mat-icon>
+          <span>Se déconnecter</span>
+        </button>
+      </mat-menu>
+    </div>
+  }
+</header>

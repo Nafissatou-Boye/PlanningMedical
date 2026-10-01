@@ -1,0 +1,173 @@
+.ecran {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 24px 16px;
+  box-sizing: border-box;
+  background: linear-gradient(160deg, var(--mp-bleu-ciel) 0%, var(--mp-fond) 55%, var(--mp-blanc) 100%);
+}
+
+.carte {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  width: 100%;
+  max-width: 980px;
+  background: var(--mp-blanc);
+  border: 1px solid var(--mp-bordure);
+  border-radius: 24px;
+  box-shadow: 0 12px 40px rgba(23, 59, 94, 0.08);
+  overflow: hidden;
+}
+
+.visuel {
+  padding: 48px 40px;
+  background: linear-gradient(180deg, #e6f6fa 0%, var(--mp-bleu-ciel) 100%);
+  color: var(--mp-texte);
+
+  img {
+    width: 96px;
+    height: 96px;
+    object-fit: contain;
+  }
+
+  h2 {
+    margin: 16px 0 8px;
+    font-size: 28px;
+    font-weight: 700;
+  }
+
+  p {
+    margin: 0 0 28px;
+    line-height: 1.55;
+    color: var(--mp-texte-secondaire);
+  }
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
+
+    mat-icon {
+      color: var(--mp-bleu-medical);
+    }
+  }
+}
+
+.panneau {
+  padding: 40px 44px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  h1 {
+    margin: 0 0 8px;
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--mp-texte);
+  }
+}
+
+.sous-titre {
+  margin: 0 0 28px;
+  font-size: 16px;
+  color: var(--mp-texte-secondaire);
+}
+
+.choix {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 340px;
+
+  button {
+    height: 48px;
+    border-radius: var(--mp-rayon-petit);
+  }
+}
+
+.formulaire {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.ligne {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.erreur {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: var(--mp-rayon-petit);
+  background: #fdecea;
+  color: #b3261e;
+  font-size: 14px;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 12px;
+
+  button {
+    height: 44px;
+    min-width: 120px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .carte {
+    grid-template-columns: 1fr;
+  }
+
+  .visuel {
+    padding: 28px 24px;
+    text-align: center;
+
+    img {
+      width: 64px;
+      height: 64px;
+    }
+
+    p {
+      margin-bottom: 0;
+    }
+
+    ul {
+      display: none;
+    }
+  }
+
+  .panneau {
+    padding: 28px 20px;
+
+    h1 {
+      font-size: 24px;
+    }
+  }
+
+  .ligne {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .choix {
+    max-width: none;
+  }
+}

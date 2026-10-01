@@ -1,0 +1,163 @@
+<header class="mp-entete-page">
+  <div>
+    <h1>Planning des gardes</h1>
+    <p>Cliquez sur une case pour y placer un agent. Seuls les agents disponibles sont proposés.</p>
+  </div>
+  @if (grille()?.planningId) {
+    <div class="actions-entete">
+      <button mat-stroked-button (click)="ouvrirPdf()" [disabled]="pdfEnCours()">
+        <mat-icon>picture_as_pdf</mat-icon> Voir le PDF
+      </button>
+      <button mat-icon-button (click)="telechargerPdf()" [disabled]="pdfEnCours()" matTooltip="Télécharger le PDF" aria-label="Télécharger le PDF">
+        <mat-icon>download</mat-icon>
+      </button>
+      <button mat-stroked-button (click)="envoyer()">
+        <mat-icon>forward_to_inbox</mat-icon> Envoyer
+      </button>
+      @if (grille()!.statut === 'PUBLIE') {
+        <button mat-stroked-button (click)="publier(false)" [disabled]="envoi()">
+          <mat-icon>edit_note</mat-icon> Repasser en brouillon
+        </button>
+      } @else {
+        <button mat-flat-button class="mp-bouton-principal" (click)="publier(true)" [disabled]="envoi()">
+          <mat-icon>verified</mat-icon> Publier le planning
+        </button>
+      }
+    </div>
+  }
+</header>
+
+<div class="mp-filtres">
+  @if (services().length > 1) {
+    <mat-form-field appearance="outline">
+      <mat-select [ngModel]="serviceId()" (ngModelChange)="choisirService($event)" aria-label="Service">
+        @for (s of services(); track s.id) {
+          <mat-option [value]="s.id">{{ s.nom }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  }
+
+  <div class="navigation">
+    <button mat-icon-button (click)="changerMois(-1)" aria-label="Mois précédent"><mat-icon>chevron_left</mat-icon></button>
+    <strong>{{ titreMois() }}</strong>
+    <button mat-icon-button (click)="changerMois(1)" aria-label="Mois suivant"><mat-icon>chevron_right</mat-icon></button>
+  </div>
+
+  @if (grille()?.planningId) {
+    <span class="statut" [class.publie]="grille()!.statut === 'PUBLIE'">
+      {{ grille()!.statut === 'PUBLIE' ? 'Publié' : 'Brouillon' }}
+    </span>
+    <span class="couverture" matTooltip="Places remplies / places à pourvoir">
+      <span class="barre"><span [style.width.%]="couverture()"></span></span>
+      {{ grille()!.statistiques.placesRemplies }}/{{ grille()!.statistiques.placesTotales }} places ·
+      {{ grille()!.statistiques.astreintesRemplies }}/{{ grille()!.statistiques.astreintesTotales }} astreintes
+    </span>
+  }
+</div>
+
+@if (erreur()) {
+  <p class="mp-erreur" role="alert"><mat-icon>error</mat-icon> {{ erreur() }}</p>
+}
+
+@if (chargement()) {
+  <mat-progress-bar mode="indeterminate" />
+} @else if (services().length === 0) {
+  <section class="mp-carte mp-vide">
+    <mat-icon>medical_services</mat-icon>
+    <p>Créez d'abord un service et ses colonnes dans le menu « Services ».</p>
+  </section>
+} @else if (grille(); as g) {
+  @if (g.colonnes.length === 0) {
+    <section class="mp-carte mp-vide">
+      <mat-icon>view_column</mat-icon>
+      <p>Le service {{ g.service }} n'a encore aucune colonne. Ajoutez des sous-services et des plages horaires dans « Services ».</p>
+    </section>
+  } @else if (!g.planningId) {
+    <section class="mp-carte mp-vide">
+      <mat-icon>event_note</mat-icon>
+      <p>Le planning {{ deMois() }} n'existe pas encore pour {{ g.service }}.</p>
+      <button mat-flat-button class="mp-bouton-principal" (click)="creer()" [disabled]="envoi()">
+        <mat-icon>add</mat-icon> Créer le planning {{ deMoisTitre() }}
+      </button>
+    </section>
+  } @else {
+    <section class="mp-carte feuille">
+      <h2 class="titre-feuille">GARDES {{ g.service | uppercase }} / {{ titreMois() | uppercase }}</h2>
+      <div class="mp-defilement">
+        <table class="grille">
+          <thead>
+            <tr>
+              <th rowspan="2" class="col-date">DATES</th>
+              @for (ss of g.colonnes; track ss.sousServiceId) {
+                <th [attr.colspan]="ss.plages.length">{{ ss.nom | uppercase }}</th>
+              }
+              <th rowspan="2" class="col-astreinte">ASTREINTES</th>
+            </tr>
+            <tr>
+              @for (ss of g.colonnes; track ss.sousServiceId) {
+                @for (p of ss.plages; track p.plageId) {
+                  <th class="plage">{{ p.libelle }}</th>
+                }
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (j of g.jours; track j.date) {
+              <tr [class.weekend]="j.weekend || j.ferie">
+                <th class="col-date" scope="row">
+                  {{ j.libelle }}
+                  @if (j.ferie) {
+                    <small>{{ j.ferie }}</small>
+                  }
+                </th>
+                @for (ss of g.colonnes; track ss.sousServiceId) {
+                  @for (p of ss.plages; track p.plageId) {
+                    <td [class.binome]="places(p, j).length === 2">
+                      @for (pos of places(p, j); track pos) {
+                        @if (pos === 2) {
+                          <span class="sep">/</span>
+                        }
+                        @let nom = occupant(p, j, pos);
+                        <button
+                          type="button"
+                          class="place"
+                          [class.vide]="!nom"
+                          (click)="ouvrirGarde(ss, p, j, pos)"
+                          [attr.aria-label]="(nom ?? 'Place libre') + ' — ' + p.libelle + ' ' + j.libelle"
+                        >
+                          {{ nom ?? '+' }}
+                        </button>
+                      }
+                    </td>
+                  }
+                }
+                @if (astreintesParDebut().get(j.date); as a) {
+                  <td class="col-astreinte" [attr.rowspan]="a.jours">
+                    <button
+                      type="button"
+                      class="place astreinte"
+                      [class.vide]="!a.periode.nomAffichage"
+                      (click)="ouvrirAstreinte(a.periode)"
+                    >
+                      {{ a.periode.nomAffichage ?? '+ Astreinte' }}
+                    </button>
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="conges">
+        <strong>CONGÉS :</strong>
+        @for (c of g.conges; track $index) {
+          <span>{{ c.agent }} : du {{ formatFr(c.dateDebut) }} au {{ formatFr(c.dateFin) }}</span>
+        } @empty {
+          <span class="aucun">aucun congé ce mois-ci</span>
+        }
+      </div>
+    </section>
+  }
+}

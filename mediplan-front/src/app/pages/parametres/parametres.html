@@ -1,0 +1,103 @@
+<header class="mp-entete-page">
+  <div>
+    <h1>Paramètres</h1>
+    <p>Réglages communs à tous les plannings.</p>
+  </div>
+</header>
+
+<section class="mp-carte feries">
+  <div class="titre">
+    <div>
+      <h2><mat-icon>celebration</mat-icon> Jours fériés</h2>
+      <p>Ils apparaissent dans le planning des gardes et dans le PDF, comme les week-ends.</p>
+    </div>
+    <div class="annee">
+      <button mat-icon-button (click)="changerAnnee(-1)" aria-label="Année précédente"><mat-icon>chevron_left</mat-icon></button>
+      <strong>{{ annee() }}</strong>
+      <button mat-icon-button (click)="changerAnnee(1)" aria-label="Année suivante"><mat-icon>chevron_right</mat-icon></button>
+    </div>
+  </div>
+
+  @if (erreur()) {
+    <p class="mp-erreur" role="alert"><mat-icon>error</mat-icon> {{ erreur() }}</p>
+  }
+  @if (message()) {
+    <p class="info"><mat-icon>check_circle</mat-icon> {{ message() }}</p>
+  }
+
+  <div class="actions">
+    <button mat-flat-button class="mp-bouton-principal" (click)="ajouterSenegal()" [disabled]="envoi()">
+      <mat-icon>auto_awesome</mat-icon> Ajouter les fériés du Sénégal {{ annee() }}
+    </button>
+    <span class="aide">Jour de l'An, 4 avril, Pâques, 1er mai, Ascension, Pentecôte, 15 août, Toussaint, Noël</span>
+  </div>
+
+  @if (lunairesManquantes().length) {
+    <div class="lunaires">
+      <mat-icon>dark_mode</mat-icon>
+      <div>
+        <strong>À saisir quand la date est annoncée</strong> (elle dépend de la lune) :
+        <span class="puces">
+          @for (fete of lunairesManquantes(); track fete) {
+            <button type="button" class="puce" (click)="preparer(fete)" [matTooltip]="'Ajouter ' + fete">+ {{ fete }}</button>
+          }
+        </span>
+      </div>
+    </div>
+  }
+
+  <form [formGroup]="f" #fd="ngForm" (ngSubmit)="enregistrer(fd)" class="formulaire">
+    <mat-form-field appearance="outline">
+      <mat-label>Date</mat-label>
+      <input matInput [matDatepicker]="picker" formControlName="date" placeholder="jj/mm/aaaa" />
+      <mat-datepicker-toggle matIconSuffix [for]="picker" />
+      <mat-datepicker #picker />
+      <mat-error>Choisissez une date.</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="libelle">
+      <mat-label>Nom du jour férié</mat-label>
+      <input matInput formControlName="libelle" maxlength="100" placeholder="Ex. : Korité" />
+      <mat-error>Donnez un nom au jour férié.</mat-error>
+    </mat-form-field>
+    <button mat-flat-button class="mp-bouton-principal" type="submit" [disabled]="envoi()">
+      <mat-icon>{{ edition() ? 'save' : 'add' }}</mat-icon> {{ edition() ? 'Enregistrer' : 'Ajouter' }}
+    </button>
+    @if (edition() || f.value.libelle) {
+      <button mat-button type="button" (click)="annuler(fd)">Annuler</button>
+    }
+  </form>
+
+  @if (chargement()) {
+    <mat-progress-bar mode="indeterminate" />
+  } @else {
+    <ul class="liste">
+      @for (j of feries(); track j.id) {
+        <li [class.en-edition]="edition()?.id === j.id">
+          <span class="jour">
+            <strong>{{ j.date.slice(8) }}</strong>
+            <small>{{ dateLongue(j.date).split(' ')[2] }}</small>
+          </span>
+          <span class="nom">
+            <strong>{{ j.libelle }}</strong>
+            <small>
+              {{ dateLongue(j.date) }}
+              @if (estWeekend(j.date)) {
+                · <span class="we">tombe un week-end</span>
+              }
+            </small>
+          </span>
+          <button mat-icon-button (click)="modifier(j)" [attr.aria-label]="'Modifier ' + j.libelle"><mat-icon>edit</mat-icon></button>
+          <button mat-icon-button (click)="supprimer(j)" [attr.aria-label]="'Supprimer ' + j.libelle"><mat-icon>delete</mat-icon></button>
+        </li>
+      } @empty {
+        <li class="vide">Aucun jour férié enregistré pour {{ annee() }}.</li>
+      }
+    </ul>
+  }
+</section>
+
+<app-envoi-email />
+
+<app-acces-telephone />
+
+<app-signatures-pdf />

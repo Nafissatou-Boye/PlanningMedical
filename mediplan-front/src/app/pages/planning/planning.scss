@@ -1,0 +1,166 @@
+.actions-entete {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+
+  button:not(.mat-mdc-icon-button) {
+    height: 46px;
+  }
+}
+
+.navigation {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  strong {
+    min-width: 150px;
+    text-align: center;
+    font-size: 16px;
+  }
+}
+
+.statut {
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: var(--mp-jour);
+  font-size: 12px;
+  font-weight: 600;
+
+  &.publie {
+    background: var(--mp-vert-fond);
+    color: var(--mp-vert-texte);
+  }
+}
+
+.couverture {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  font-size: 13px;
+  color: var(--mp-texte-secondaire);
+
+  .barre {
+    width: 90px;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--mp-bordure);
+    overflow: hidden;
+
+    span {
+      display: block;
+      height: 100%;
+      background: var(--mp-turquoise);
+    }
+  }
+}
+
+.feuille {
+  padding: 20px;
+}
+
+.titre-feuille {
+  margin: 0 0 16px;
+  text-align: center;
+  font-family: 'Times New Roman', serif;
+  font-size: 18px;
+}
+
+table.grille {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Times New Roman', serif;
+  font-size: 13px;
+
+  th,
+  td {
+    border: 1px solid #3b4a57;
+    padding: 2px 4px;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  thead th {
+    background: var(--mp-blanc);
+    font-weight: 700;
+    padding: 6px 8px;
+  }
+
+  .col-date {
+    text-align: left;
+    font-weight: 700;
+    min-width: 110px;
+
+    small {
+      display: block;
+      font-weight: 400;
+      font-size: 11px;
+    }
+  }
+
+  .col-astreinte {
+    min-width: 110px;
+    background: var(--mp-blanc);
+    vertical-align: middle;
+  }
+
+  tr.weekend {
+    th,
+    td:not(.col-astreinte) {
+      background: #e3e3e3;
+      color: #d11a1a;
+    }
+
+    .place:not(.vide) {
+      color: #d11a1a;
+      font-weight: 700;
+    }
+  }
+
+  .sep {
+    padding: 0 2px;
+  }
+}
+
+.place {
+  min-width: 28px;
+  padding: 3px 4px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  font: inherit;
+  color: var(--mp-texte);
+  cursor: pointer;
+
+  &:hover {
+    background: #e6f6fa;
+    outline: 1px solid var(--mp-turquoise);
+  }
+
+  &.vide {
+    color: #9bb3c4;
+  }
+
+  &.astreinte {
+    font-weight: 700;
+    white-space: normal;
+  }
+}
+
+.conges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-top: 16px;
+  font-family: 'Times New Roman', serif;
+
+  strong {
+    text-decoration: underline;
+  }
+
+  .aucun {
+    color: var(--mp-texte-secondaire);
+  }
+}

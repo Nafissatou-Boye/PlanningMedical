@@ -1,0 +1,27 @@
+<mat-sidenav-container class="conteneur" autosize>
+  <mat-sidenav
+    class="barre-laterale"
+    [class.reduite]="estReduite()"
+    [mode]="estMobile() ? 'over' : 'side'"
+    [opened]="estMobile() ? tiroirOuvert() : true"
+    (closedStart)="tiroirOuvert.set(false)"
+    [fixedInViewport]="true"
+    [disableClose]="!estMobile()"
+  >
+    <app-sidebar [reduite]="estReduite()" />
+  </mat-sidenav>
+
+  <mat-sidenav-content class="contenu">
+    <app-topbar
+      [mobile]="estMobile()"
+      [nomUtilisateur]="auth.nomComplet()"
+      [fonction]="auth.profil()?.poste ?? ''"
+      (menu)="basculerMenu()"
+      (deconnexion)="deconnecter()"
+    />
+
+    <main class="page">
+      <router-outlet />
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

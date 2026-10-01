@@ -1,0 +1,60 @@
+<div class="ecran">
+  <section class="carte">
+    <aside class="visuel">
+      <img src="logo-mediplan.png" alt="" width="96" height="96" />
+      <h2>MediPlan</h2>
+      <p>Le planning des gardes de votre service, préparé, vérifié et diffusé en quelques minutes.</p>
+    </aside>
+
+    <div class="panneau">
+      <h1>Connexion</h1>
+      <p class="sous-titre">Heureux de vous revoir. Connectez-vous pour continuer.</p>
+
+      <form [formGroup]="formulaire" (ngSubmit)="valider()" class="formulaire" novalidate>
+        <mat-form-field appearance="outline">
+          <mat-label>Nom d'utilisateur</mat-label>
+          <input matInput formControlName="nomUtilisateur" autocomplete="username" />
+          @if (formulaire.controls.nomUtilisateur.hasError('required')) {
+            <mat-error>Le nom d'utilisateur est obligatoire.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Mot de passe</mat-label>
+          <input
+            matInput
+            formControlName="motDePasse"
+            [type]="masquerMdp() ? 'password' : 'text'"
+            autocomplete="current-password"
+          />
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            (click)="masquerMdp.set(!masquerMdp())"
+            [attr.aria-label]="masquerMdp() ? 'Afficher le mot de passe' : 'Masquer le mot de passe'"
+          >
+            <mat-icon>{{ masquerMdp() ? 'visibility' : 'visibility_off' }}</mat-icon>
+          </button>
+          @if (formulaire.controls.motDePasse.hasError('required')) {
+            <mat-error>Le mot de passe est obligatoire.</mat-error>
+          }
+        </mat-form-field>
+
+        @if (erreur()) {
+          <p class="erreur" role="alert"><mat-icon>error</mat-icon> {{ erreur() }}</p>
+        }
+
+        <div class="actions">
+          <button mat-flat-button class="mp-bouton-principal" type="submit" [disabled]="envoi()">
+            @if (envoi()) {
+              <mat-spinner diameter="20" />
+            } @else {
+              Se connecter
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+  </section>
+</div>

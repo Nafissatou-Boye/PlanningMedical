@@ -1,0 +1,307 @@
+.entete {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+
+  h1 { margin: 0 0 6px; font-size: 30px; font-weight: 700; }
+  p { margin: 0; color: var(--mp-texte-secondaire); }
+  a { height: 48px; }
+}
+
+// ---------- Indicateurs ----------
+.indicateurs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.kpi {
+  padding: 20px 22px;
+
+  .haut { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; }
+  p { margin: 0 0 4px; font-size: 14px; color: var(--mp-texte-secondaire); }
+  strong { font-size: 30px; font-weight: 700; }
+  small { margin-left: 4px; font-size: 13px; color: var(--mp-texte-secondaire); }
+}
+
+.icone {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+
+  &.bleu { background: #e3f1fb; color: var(--mp-bleu-medical); }
+  &.turquoise { background: #dff4f3; color: #2c9a95; }
+  &.violet { background: var(--mp-24h); color: #7a58b8; }
+  &.orange { background: #fdf0dd; color: #d98a1c; }
+}
+
+.tendance {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: var(--mp-vert-fond);
+  color: var(--mp-vert-texte);
+  font-size: 12px;
+  font-weight: 600;
+
+  mat-icon { font-size: 15px; width: 15px; height: 15px; }
+  &.baisse { background: #fde8e6; color: #c62828; }
+  &.neutre { background: var(--mp-fond); color: var(--mp-texte-secondaire); font-weight: 500; }
+  &.alerte { background: #fdf0dd; color: #b26a00; text-decoration: none; }
+}
+
+// ---------- Colonnes ----------
+.colonnes {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 24px;
+  align-items: start;
+}
+
+.titre {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 20px 22px 14px;
+
+  h2 { margin: 0; font-size: 18px; }
+  p { margin: 4px 0 0; font-size: 13px; color: var(--mp-texte-secondaire); }
+}
+
+// ---------- Calendrier ----------
+.calendrier { overflow: hidden; }
+
+.commandes {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .fleche { min-width: 40px; width: 40px; height: 40px; padding: 0; mat-icon { margin: 0; } }
+  .periode { min-width: 120px; text-align: center; }
+}
+
+.legende {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  padding: 10px 22px;
+  border-top: 1px solid var(--mp-bordure);
+  font-size: 12px;
+  color: var(--mp-texte-secondaire);
+
+  span { display: inline-flex; align-items: center; gap: 6px; }
+  i { width: 9px; height: 9px; border-radius: 50%; }
+  .jour { background: #f5d774; }
+  .nuit { background: #a9cbee; }
+  .h24 { background: #c9b5ea; }
+  .astreinte { background: #8fd6cd; }
+  .incomplet { background: #fff; border: 2px solid #e0703a; width: 7px; height: 7px; }
+  .ferie { background: #f3a9a3; }
+}
+
+.non-cree {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 8px 22px;
+  background: var(--mp-fond);
+  font-size: 13px;
+  mat-icon { font-size: 18px; width: 18px; height: 18px; color: var(--mp-bleu-medical); }
+  a { color: var(--mp-bleu-medical); font-weight: 600; }
+}
+
+.jours-semaine,
+.grille {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.jours-semaine span {
+  padding: 10px 0;
+  border-top: 1px solid var(--mp-bordure);
+  background: var(--mp-fond);
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--mp-texte-secondaire);
+}
+
+.case-jour {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  min-height: 96px;
+  padding: 8px;
+  border: none;
+  border-top: 1px solid var(--mp-bordure);
+  border-right: 1px solid var(--mp-bordure);
+  background: var(--mp-blanc);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  &:nth-child(7n) { border-right: none; }
+  &:hover { background: #f7fcfd; }
+  &.hors-mois { background: #fafcfd; .numero { color: #b5c4d0; } }
+  &.weekend:not(.hors-mois) .numero { color: #c0621e; }
+}
+
+.grille.semaine .case-jour { min-height: 220px; }
+
+.numero {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  font-size: 13px;
+  font-weight: 700;
+
+  &.aujourdhui { border-radius: 8px; background: var(--mp-bleu-medical); color: #fff !important; }
+}
+
+.pastille {
+  display: flex;
+  justify-content: space-between;
+  gap: 4px;
+  padding: 3px 7px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+
+  .texte { overflow: hidden; text-overflow: ellipsis; }
+  &.jour { background: var(--mp-jour); color: #8a6d0a; }
+  &.nuit { background: var(--mp-nuit); color: #2f5f8f; }
+  &.h24 { background: var(--mp-24h); color: #5d4394; }
+  &.astreinte { background: var(--mp-astreinte); color: #1f7a70; }
+  &.ferie { background: var(--mp-ferie); color: #b3261e; }
+  &.incomplet { border-color: #e0703a; border-style: dashed; }
+}
+
+.nom {
+  padding-left: 6px;
+  font-size: 11px;
+  color: var(--mp-texte-secondaire);
+  white-space: normal;
+}
+
+// ---------- Équipe ----------
+.equipe {
+  ul { list-style: none; margin: 0; padding: 0 22px; }
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-top: 1px solid var(--mp-bordure);
+
+    &.vide { justify-content: center; color: var(--mp-texte-secondaire); }
+  }
+
+  .gerer { display: flex; width: calc(100% - 44px); margin: 12px 22px 20px; height: 46px; }
+}
+
+.avatar {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: var(--mp-bleu-ciel);
+  font-size: 13px;
+  font-weight: 700;
+
+  &::after {
+    content: '';
+    position: absolute;
+    right: -2px;
+    bottom: -2px;
+    width: 10px;
+    height: 10px;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    background: var(--mp-vert);
+  }
+  &.en-garde::after, &.de-garde::after { background: #f0a030; }
+  &.conge::after { background: #b5c4d0; }
+}
+
+.identite {
+  flex: 1;
+  min-width: 0;
+  strong { display: block; font-size: 14px; }
+  small { display: block; font-size: 12px; color: var(--mp-texte-secondaire); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
+
+.statut {
+  flex: none;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+
+  &.disponible { background: var(--mp-vert-fond); color: var(--mp-vert-texte); }
+  &.en-garde, &.de-garde { background: #fdf0dd; color: #b26a00; }
+  &.conge { background: var(--mp-fond); color: var(--mp-texte-secondaire); }
+}
+
+// ---------- Tablette ----------
+@media (max-width: 1279.98px) {
+  .indicateurs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .colonnes { grid-template-columns: minmax(0, 1fr); }
+}
+
+// ---------- Mobile (comme la maquette : pastilles réduites à des points) ----------
+@media (max-width: 767.98px) {
+  .entete {
+    align-items: flex-start;
+    h1 { font-size: 24px; }
+  }
+
+  .ajouter {
+    flex: none;
+    width: 52px;
+    min-width: 52px;
+    height: 52px !important;
+    padding: 0;
+    border-radius: 14px;
+    mat-icon { margin: 0; }
+    .libelle { display: none; }
+  }
+
+  .indicateurs { gap: 12px; }
+  .kpi { padding: 14px; .haut { margin-bottom: 10px; } strong { font-size: 24px; } }
+  .icone { width: 38px; height: 38px; }
+  .tendance { padding: 3px 6px; font-size: 11px; }
+
+  .titre { padding: 16px 14px 10px; }
+  .commandes { width: 100%; flex-wrap: wrap; justify-content: space-between; }
+  .commandes mat-button-toggle-group { width: 100%; }
+  .commandes mat-button-toggle { flex: 1; }
+  .legende { padding: 8px 14px; }
+
+  .case-jour { min-height: 58px; padding: 5px 3px; gap: 3px; flex-direction: row; flex-wrap: wrap; align-content: flex-start; }
+  .numero { width: 100%; height: 22px; font-size: 12px; justify-content: start; }
+  .numero.aujourdhui { width: 24px; }
+  .pastille { width: 7px; height: 7px; padding: 0; border-radius: 50%; border-width: 1px; }
+  .pastille .texte, .pastille .compte { display: none; }
+  .pastille.incomplet { border-style: solid; }
+  .grille.semaine .case-jour { min-height: 120px; }
+  .nom { display: none; }
+}

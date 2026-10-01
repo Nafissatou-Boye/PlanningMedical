@@ -1,0 +1,397 @@
+// =====================================================================
+//  MediPlan — thème global
+//  Palette validée : bleu ciel, turquoise, bleu médical, blanc, texte bleu foncé.
+// =====================================================================
+@use '@angular/material' as mat;
+
+// ---------- 1. Couleurs de la marque (utilisables partout via var(--mp-...)) ----------
+:root {
+  // Palette principale
+  --mp-bleu-ciel: #cfeff5;
+  --mp-turquoise: #4fafc2;
+  --mp-bleu-medical: #2879a8;
+  --mp-bleu-medical-fonce: #1f6690;
+  --mp-blanc: #ffffff;
+  --mp-fond: #f3fafc;
+  --mp-texte: #173b5e;
+  --mp-texte-secondaire: #5b7690;
+  --mp-bordure: #e3eef3;
+
+  // Couleurs du logo (usage limité)
+  --mp-logo-bleu: #018ede;
+  --mp-vert: #99cc33;          // indicateurs positifs : Disponible, hausse, succès
+  --mp-vert-fond: #eef7dc;
+  --mp-vert-texte: #4d7a12;
+
+  // Badges du calendrier (pastels relevés sur la maquette)
+  --mp-jour: #fff1bf;
+  --mp-nuit: #ddecfa;
+  --mp-24h: #eee5f8;
+  --mp-astreinte: #d9f3f0;
+  --mp-weekend: #f9e4ed;
+  --mp-ferie: #fde1df;
+
+  // Formes et ombres
+  --mp-rayon: 16px;
+  --mp-rayon-petit: 10px;
+  --mp-ombre: 0 2px 10px rgba(23, 59, 94, 0.06);
+  --mp-ombre-bouton: 0 4px 14px rgba(40, 121, 168, 0.28);
+
+  // Mise en page
+  --mp-sidebar-large: 272px;
+  --mp-sidebar-reduite: 84px;
+  --mp-topbar-hauteur: 76px;
+}
+
+// ---------- 2. Thème Angular Material aligné sur la palette ----------
+html {
+  height: 100%;
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$azure-palette,
+        tertiary: mat.$cyan-palette,
+      ),
+      typography: (
+        plain-family: '"Inter Variable", Inter, Roboto, sans-serif',
+        brand-family: '"Inter Variable", Inter, Roboto, sans-serif',
+      ),
+      density: 0,
+    )
+  );
+
+  // Les composants Material (boutons, champs, onglets...) prennent nos couleurs exactes
+  @include mat.theme-overrides(
+    (
+      primary: #2879a8,
+      on-primary: #ffffff,
+      primary-container: #cfeff5,
+      on-primary-container: #173b5e,
+      secondary: #4fafc2,
+      on-secondary: #ffffff,
+      secondary-container: #d9f3f0,
+      on-secondary-container: #173b5e,
+      surface: #ffffff,
+      on-surface: #173b5e,
+      on-surface-variant: #5b7690,
+      background: #f3fafc,
+      outline: #c7dbe4,
+      outline-variant: #e3eef3,
+    )
+  );
+}
+
+body {
+  color-scheme: light;
+  margin: 0;
+  height: 100%;
+  background-color: var(--mp-fond);
+  color: var(--mp-texte);
+  font-family: 'Inter Variable', 'Inter', Roboto, sans-serif;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 {
+  color: var(--mp-texte);
+}
+
+// ---------- 3. Icônes : Material Symbols au trait fin (style de la maquette) ----------
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+}
+
+// ---------- 4. Classes utilitaires partagées ----------
+.mp-carte {
+  background: var(--mp-blanc);
+  border: 1px solid var(--mp-bordure);
+  border-radius: var(--mp-rayon);
+  box-shadow: var(--mp-ombre);
+}
+
+.mp-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--mp-texte);
+
+  &.jour { background: var(--mp-jour); }
+  &.nuit { background: var(--mp-nuit); }
+  &.h24 { background: var(--mp-24h); }
+  &.astreinte { background: var(--mp-astreinte); }
+  &.weekend { background: var(--mp-weekend); }
+  &.ferie { background: var(--mp-ferie); }
+  &.disponible { background: var(--mp-vert-fond); color: var(--mp-vert-texte); }
+}
+
+.mp-bouton-principal.mat-mdc-unelevated-button {
+  border-radius: var(--mp-rayon-petit);
+  box-shadow: var(--mp-ombre-bouton);
+  font-weight: 600;
+}
+
+// ---------- 5. Structure commune des pages ----------
+.mp-entete-page {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+
+  h1 {
+    margin: 0 0 4px;
+    font-size: 28px;
+    font-weight: 700;
+  }
+
+  p {
+    margin: 0;
+    color: var(--mp-texte-secondaire);
+  }
+
+  .mp-bouton-principal {
+    height: 46px;
+  }
+}
+
+.mp-filtres {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+
+  .mat-mdc-form-field {
+    width: 220px;
+  }
+
+  .recherche {
+    flex: 1 1 260px;
+    max-width: 380px;
+  }
+}
+
+// Champs compacts dans les barres de filtres
+.mp-filtres .mat-mdc-form-field-subscript-wrapper {
+  display: none;
+}
+
+.mp-defilement {
+  overflow-x: auto;
+}
+
+table.mp-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+
+  th {
+    text-align: left;
+    padding: 12px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #7a93a8;
+    background: var(--mp-fond);
+    border-bottom: 1px solid var(--mp-bordure);
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--mp-bordure);
+    vertical-align: middle;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  tbody tr:hover {
+    background: #fafdfe;
+  }
+
+  .actions {
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .secondaire {
+    display: block;
+    font-size: 12px;
+    color: var(--mp-texte-secondaire);
+  }
+}
+
+.mp-vide {
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--mp-texte-secondaire);
+
+  mat-icon {
+    font-size: 40px;
+    width: 40px;
+    height: 40px;
+    color: var(--mp-turquoise);
+  }
+
+  p {
+    margin: 8px 0 16px;
+  }
+}
+
+.mp-statut {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+
+  &::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--mp-vert);
+  }
+
+  &.inactif {
+    color: #8aa2b6;
+
+    &::before {
+      background: #c3d3de;
+    }
+  }
+}
+
+.mp-badge.archive {
+  background: #eef2f5;
+  color: #6b8397;
+}
+
+.mp-badge.stagiaire {
+  background: var(--mp-24h);
+}
+
+.mp-erreur {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+  padding: 10px 14px;
+  border-radius: var(--mp-rayon-petit);
+  background: #fdecea;
+  color: #b3261e;
+  font-size: 14px;
+}
+
+.mp-bouton-danger.mat-mdc-unelevated-button {
+  --mat-button-filled-container-color: #c62828;
+  --mat-button-filled-label-text-color: #fff;
+}
+
+// ---------- 6. Boîtes de dialogue ----------
+.mp-dialogue {
+  .mat-mdc-dialog-content {
+    padding-top: 8px !important;
+  }
+
+  .grille {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 12px;
+  }
+
+  .pleine {
+    grid-column: 1 / -1;
+  }
+
+  .mat-mdc-form-field {
+    width: 100%;
+  }
+
+  .sous-titre {
+    grid-column: 1 / -1;
+    margin: 8px 0 12px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--mp-bleu-medical);
+  }
+}
+
+@media (max-width: 599.98px) {
+  .mp-dialogue .grille {
+    grid-template-columns: 1fr;
+  }
+
+  .mp-filtres .mat-mdc-form-field,
+  .mp-filtres .recherche {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+// Infobulles sur plusieurs lignes (calendrier du tableau de bord)
+.infobulle-lignes .mdc-tooltip__surface {
+  white-space: pre-line;
+  text-align: left;
+  max-width: 280px;
+}
+
+// ---------- Barre du haut : panneaux de recherche et de notifications ----------
+.panneau-recherche {
+  .mat-mdc-option { min-height: 54px; }
+  .resultat { display: flex; align-items: center; gap: 12px; width: 100%; }
+  .resultat mat-icon { margin: 0; color: var(--mp-bleu-medical); }
+  .textes { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .textes strong { font-size: 14px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .textes small { font-size: 12px; color: var(--mp-texte-secondaire); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .type { flex: none; padding: 2px 8px; border-radius: 6px; background: var(--mp-fond); font-size: 11px; color: var(--mp-texte-secondaire); }
+}
+
+.mat-mdc-menu-panel.panneau-notifications {
+  width: 380px;
+  max-width: 92vw;
+  max-height: 70vh;
+
+  .entete-notifications {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px 8px;
+    border-bottom: 1px solid var(--mp-bordure);
+    strong { font-size: 15px; }
+  }
+
+  .tout-lire { border: none; background: none; font: inherit; font-size: 12px; color: var(--mp-bleu-medical); cursor: pointer; }
+
+  .notification {
+    height: auto;
+    min-height: 64px;
+    padding: 10px 16px;
+    white-space: normal;
+    border-bottom: 1px solid var(--mp-bordure);
+
+    .contenu { display: flex; align-items: flex-start; gap: 12px; }
+    .icone { display: grid; place-items: center; flex: none; width: 36px; height: 36px; border-radius: 10px; background: var(--mp-fond); }
+    .icone mat-icon { margin: 0; font-size: 20px; width: 20px; height: 20px; color: var(--mp-bleu-medical); }
+    .textes { display: flex; flex-direction: column; flex: 1; line-height: 1.35; }
+    .textes strong { font-size: 13px; font-weight: 600; color: var(--mp-texte); }
+    .textes small { font-size: 12px; color: var(--mp-texte-secondaire); }
+    .point { flex: none; width: 8px; height: 8px; margin-top: 6px; border-radius: 50%; background: var(--mp-bleu-medical); }
+
+    &.urgent .icone { background: #fde8e6; mat-icon { color: #c62828; } }
+    &.urgent .point { background: #c62828; }
+    &.attention .icone { background: #fdf0dd; mat-icon { color: #b26a00; } }
+    &.lue { opacity: 0.6; }
+  }
+
+  .aucune { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 28px 16px; color: var(--mp-texte-secondaire); font-size: 13px; }
+}

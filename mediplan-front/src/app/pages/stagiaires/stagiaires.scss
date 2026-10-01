@@ -1,0 +1,110 @@
+.onglets {
+  ::ng-deep .mat-mdc-tab-body-content {
+    padding-top: 20px;
+    overflow: visible;
+  }
+
+  ::ng-deep .mat-mdc-tab .mdc-tab__text-label {
+    gap: 6px;
+  }
+}
+
+.titre-feuille span {
+  display: block;
+  margin-top: 4px;
+  font-size: 15px;
+  color: var(--mp-turquoise);
+}
+
+.sans-poste {
+  color: #b26a00;
+  font-weight: 600;
+}
+
+table.grille-stagiaires {
+  th,
+  td {
+    padding: 8px 6px;
+    white-space: normal;
+  }
+
+  thead th {
+    background: var(--mp-bleu-medical);
+    color: var(--mp-blanc);
+    min-width: 110px;
+
+    &.col-semaine {
+      background: var(--mp-texte);
+    }
+
+    &.partiel {
+      color: var(--mp-texte);
+    }
+
+    small {
+      display: block;
+      font-size: 11px;
+      font-weight: 400;
+    }
+  }
+
+  tbody tr:nth-child(even) td:not(.partiel) {
+    background: var(--mp-fond);
+  }
+
+  .col-semaine {
+    min-width: 130px;
+    background: var(--mp-bleu-ciel);
+  }
+
+  td {
+    height: 46px;
+    font-weight: 700;
+  }
+
+  td.partiel .place:not(.vide) {
+    color: #c0621e;
+  }
+}
+
+.semaine {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  font: inherit;
+  font-weight: 700;
+  color: var(--mp-texte);
+  cursor: pointer;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: var(--mp-bleu-medical);
+    opacity: 0.6;
+  }
+
+  &:hover {
+    background: var(--mp-blanc);
+
+    mat-icon {
+      opacity: 1;
+    }
+  }
+}
+
+.place.secondaire {
+  opacity: 0.45;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.ajouter-semaine {
+  margin-top: 8px;
+}

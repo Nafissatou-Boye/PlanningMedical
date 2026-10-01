@@ -1,0 +1,154 @@
+<header class="mp-entete-page">
+  <div>
+    <h1>Services</h1>
+    <p>Chaque sous-service et chaque plage horaire devient une colonne du tableau de garde et du PDF.</p>
+  </div>
+  <button mat-flat-button class="mp-bouton-principal" (click)="nouveauService()">
+    <mat-icon>add</mat-icon> Nouveau service
+  </button>
+</header>
+
+<div class="mp-filtres">
+  <mat-slide-toggle [checked]="afficherArchives()" (change)="afficherArchives.set($event.checked)">
+    Afficher les éléments archivés
+  </mat-slide-toggle>
+</div>
+
+@if (chargement()) {
+  <mat-progress-bar mode="indeterminate" />
+} @else if (erreur()) {
+  <p class="mp-erreur"><mat-icon>error</mat-icon> {{ erreur() }}</p>
+} @else if (visibles().length === 0) {
+  <section class="mp-carte mp-vide">
+    <mat-icon>medical_services</mat-icon>
+    <p>Aucun service pour le moment.</p>
+    <button mat-flat-button class="mp-bouton-principal" (click)="nouveauService()">Créer le premier service</button>
+  </section>
+}
+
+@for (service of visibles(); track service.id) {
+  <section class="mp-carte service" [class.archive]="!service.actif">
+    <header class="service-entete">
+      <div>
+        <h2>
+          {{ service.nom }}
+          @if (!service.actif) {
+            <span class="mp-badge archive">Archivé</span>
+          }
+        </h2>
+        <p>
+          @if (service.code) {
+            <span>Code : {{ service.code }}</span>
+          }
+          @if (service.referenceDocument) {
+            <span>Réf. PDF : N°…{{ service.referenceDocument }}</span>
+          }
+        </p>
+      </div>
+      <button mat-stroked-button (click)="modifierService(service)"><mat-icon>edit</mat-icon> Modifier</button>
+    </header>
+
+    <!-- Colonnes du tableau de garde -->
+    <div class="bloc">
+      <div class="bloc-titre">
+        <h3>Colonnes du tableau de garde</h3>
+        <button mat-button (click)="nouveauSousService(service)"><mat-icon>add</mat-icon> Sous-service</button>
+      </div>
+
+      @for (ss of sousServices(service); track ss.id) {
+        <div class="sous-service" [class.archive]="!ss.actif">
+          <div class="ss-entete">
+            <strong>{{ ss.nom }}</strong>
+            @if (!ss.actif) {
+              <span class="mp-badge archive">Masqué</span>
+            }
+            <span class="espace"></span>
+            <button mat-button (click)="nouvellePlage(ss)" aria-label="Ajouter une plage horaire">
+              <mat-icon>more_time</mat-icon> Plage horaire
+            </button>
+            <button mat-icon-button (click)="modifierSousService(service, ss)" matTooltip="Modifier" aria-label="Modifier le sous-service">
+              <mat-icon>edit</mat-icon>
+            </button>
+          </div>
+          <div class="plages">
+            @for (p of plages(ss); track p.id) {
+              <button class="plage" [class.archive]="!p.actif" (click)="modifierPlage(ss, p)" matTooltip="Modifier">
+                <span class="mp-badge" [class]="classesType[p.typeGarde]">{{ libellesType[p.typeGarde] }}</span>
+                <strong>{{ p.libelle }}</strong>
+                <span class="horaires">
+                  {{ heure(p.heureDebut) }} → {{ heure(p.heureFin) }}@if (p.finitLeLendemain) {<sup>+1j</sup>}
+                </span>
+                @if (p.modeParDefaut === 'BINOME') {
+                  <span class="binome" matTooltip="2 agents par case">
+                    <mat-icon>group</mat-icon>
+                  </span>
+                }
+              </button>
+            } @empty {
+              <button class="plage vide" (click)="nouvellePlage(ss)">
+                <mat-icon>add</mat-icon> Ajouter la première plage horaire
+              </button>
+            }
+          </div>
+        </div>
+      } @empty {
+        <p class="aucun">Aucun sous-service. Ajoutez par exemple « REA » ou « Anesthésie – Bloc central ».</p>
+      }
+
+      @if (colonnesApercu(service).length) {
+        <div class="apercu">
+          <span class="apercu-titre">Aperçu de l'en-tête du tableau</span>
+          <div class="mp-defilement">
+            <table>
+              <thead>
+                <tr>
+                  <th rowspan="2">DATES</th>
+                  @for (c of colonnesApercu(service); track c.ss.id) {
+                    <th [attr.colspan]="c.plages.length">{{ c.ss.nom | uppercase }}</th>
+                  }
+                  <th rowspan="2">ASTREINTES</th>
+                </tr>
+                <tr>
+                  @for (c of colonnesApercu(service); track c.ss.id) {
+                    @for (p of c.plages; track p.id) {
+                      <th>{{ p.libelle }}</th>
+                    }
+                  }
+                </tr>
+              </thead>
+            </table>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Postes de stage -->
+    <div class="bloc">
+      <div class="bloc-titre">
+        <h3>Postes du planning des stagiaires</h3>
+        <button mat-button (click)="nouveauPoste(service)"><mat-icon>add</mat-icon> Poste</button>
+      </div>
+      <div class="plages">
+        @for (poste of postes(service); track poste.id) {
+          <button
+            class="plage"
+            [class.archive]="!poste.actif"
+            [style.background]="poste.couleur"
+            (click)="modifierPoste(service, poste)"
+            matTooltip="Modifier"
+          >
+            <strong>{{ poste.libelle }}</strong>
+            @if (poste.joursActifs) {
+              <span class="horaires">{{ poste.joursActifs.toLowerCase().replaceAll(',', ', ') }}</span>
+            }
+            @if (poste.partiel) {
+              <span class="mp-badge astreinte">En plus</span>
+            }
+          </button>
+        } @empty {
+          <p class="aucun">Aucun poste. Ajoutez par exemple « PME/2nd VPA » ou « Salle Prog.1 ».</p>
+        }
+      </div>
+    </div>
+  </section>
+}

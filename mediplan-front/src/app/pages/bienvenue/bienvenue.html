@@ -1,0 +1,147 @@
+<div class="ecran">
+  <section class="carte">
+    <aside class="visuel">
+      <img src="logo-mediplan.png" alt="" width="96" height="96" />
+      <h2>MediPlan</h2>
+      <p>Le planning des gardes de votre service, préparé, vérifié et diffusé en quelques minutes.</p>
+      <ul>
+        <li><mat-icon>event_available</mat-icon> Plannings mensuels sans double attribution</li>
+        <li><mat-icon>beach_access</mat-icon> Congés pris en compte automatiquement</li>
+        <li><mat-icon>picture_as_pdf</mat-icon> PDF officiel envoyé par e-mail</li>
+      </ul>
+    </aside>
+
+    <div class="panneau">
+      @switch (etape()) {
+        @case ('question') {
+          <h1>Bienvenue à MediPlan</h1>
+          <p class="sous-titre">C'est votre première visite ?</p>
+          <div class="choix">
+            <button mat-flat-button class="mp-bouton-principal" (click)="etape.set('formulaire')">
+              Oui, je configure mon compte
+            </button>
+            <button mat-stroked-button (click)="dejaInscrit()">Non, j'ai déjà un compte</button>
+          </div>
+        }
+
+        @case ('formulaire') {
+          <h1>Créons votre profil</h1>
+          <p class="sous-titre">Ces informations apparaîtront dans l'application.</p>
+
+          <form [formGroup]="formulaire" (ngSubmit)="valider()" class="formulaire" novalidate>
+            <div class="ligne">
+              <mat-form-field appearance="outline">
+                <mat-label>Nom</mat-label>
+                <input matInput formControlName="nom" autocomplete="family-name" />
+                @if (formulaire.controls.nom.hasError('required')) {
+                  <mat-error>Le nom est obligatoire.</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Prénom</mat-label>
+                <input matInput formControlName="prenom" autocomplete="given-name" />
+                @if (formulaire.controls.prenom.hasError('required')) {
+                  <mat-error>Le prénom est obligatoire.</mat-error>
+                }
+              </mat-form-field>
+            </div>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Nom d'utilisateur</mat-label>
+              <input matInput formControlName="nomUtilisateur" autocomplete="username" />
+              <mat-hint>Exemple : Dr Nafisa — c'est aussi votre identifiant de connexion</mat-hint>
+              @if (formulaire.controls.nomUtilisateur.hasError('required')) {
+                <mat-error>Le nom d'utilisateur est obligatoire.</mat-error>
+              } @else if (formulaire.controls.nomUtilisateur.hasError('minlength')) {
+                <mat-error>3 caractères minimum.</mat-error>
+              } @else if (formulaire.controls.nomUtilisateur.hasError('pattern')) {
+                <mat-error>Commencez et terminez par une lettre ou un chiffre.</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Service</mat-label>
+              <input matInput formControlName="service" placeholder="Anesthésie – Réanimation" />
+              @if (formulaire.controls.service.hasError('required')) {
+                <mat-error>Le service est obligatoire.</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Poste de responsabilité</mat-label>
+              <mat-select formControlName="poste">
+                @for (poste of postes; track poste) {
+                  <mat-option [value]="poste">{{ poste }}</mat-option>
+                }
+              </mat-select>
+              @if (formulaire.controls.poste.hasError('required')) {
+                <mat-error>Choisissez un poste.</mat-error>
+              }
+            </mat-form-field>
+
+            <div class="ligne">
+              <mat-form-field appearance="outline">
+                <mat-label>Mot de passe</mat-label>
+                <input
+                  matInput
+                  formControlName="motDePasse"
+                  [type]="masquerMdp() ? 'password' : 'text'"
+                  autocomplete="new-password"
+                />
+                <button
+                  mat-icon-button
+                  matSuffix
+                  type="button"
+                  (click)="masquerMdp.set(!masquerMdp())"
+                  [attr.aria-label]="masquerMdp() ? 'Afficher le mot de passe' : 'Masquer le mot de passe'"
+                >
+                  <mat-icon>{{ masquerMdp() ? 'visibility' : 'visibility_off' }}</mat-icon>
+                </button>
+                <mat-hint>8 caractères minimum</mat-hint>
+                @if (formulaire.controls.motDePasse.hasError('required')) {
+                  <mat-error>Le mot de passe est obligatoire.</mat-error>
+                } @else if (formulaire.controls.motDePasse.hasError('minlength')) {
+                  <mat-error>8 caractères minimum.</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Confirmer le mot de passe</mat-label>
+                <input
+                  matInput
+                  formControlName="confirmation"
+                  [type]="masquerMdp() ? 'password' : 'text'"
+                  autocomplete="new-password"
+                />
+                @if (formulaire.controls.confirmation.hasError('required')) {
+                  <mat-error>Confirmez le mot de passe.</mat-error>
+                } @else if (formulaire.controls.confirmation.hasError('differents')) {
+                  <mat-error>Les mots de passe ne correspondent pas.</mat-error>
+                }
+              </mat-form-field>
+            </div>
+
+            @if (erreur()) {
+              <p class="erreur" role="alert"><mat-icon>error</mat-icon> {{ erreur() }}</p>
+            }
+
+            <div class="actions">
+              <button mat-button type="button" (click)="etape.set('question')" [disabled]="envoi()">
+                Retour
+              </button>
+              <button mat-flat-button class="mp-bouton-principal" type="submit" [disabled]="envoi()">
+                @if (envoi()) {
+                  <mat-spinner diameter="20" />
+                } @else {
+                  Terminer
+                }
+              </button>
+            </div>
+          </form>
+        }
+
+      }
+    </div>
+  </section>
+</div>

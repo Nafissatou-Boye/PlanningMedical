@@ -1,0 +1,88 @@
+<header class="mp-entete-page">
+  <div>
+    <h1>Congés</h1>
+    <p>Saisis une seule fois : l'agent n'est plus proposé sur la période et le PDF est rempli automatiquement.</p>
+  </div>
+  <button mat-flat-button class="mp-bouton-principal" (click)="ajouter()">
+    <mat-icon>add</mat-icon> Ajouter un congé
+  </button>
+</header>
+
+<div class="mp-filtres">
+  <mat-button-toggle-group
+    [value]="toutAfficher() ? 'tous' : 'mois'"
+    (change)="basculerTout($event.value === 'tous')"
+    aria-label="Période affichée"
+  >
+    <mat-button-toggle value="mois">Par mois</mat-button-toggle>
+    <mat-button-toggle value="tous">Tous</mat-button-toggle>
+  </mat-button-toggle-group>
+
+  @if (!toutAfficher()) {
+    <div class="navigation">
+      <button mat-icon-button (click)="changerMois(-1)" aria-label="Mois précédent">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+      <strong>{{ titreMois() }}</strong>
+      <button mat-icon-button (click)="changerMois(1)" aria-label="Mois suivant">
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+    </div>
+  }
+</div>
+
+@if (erreur()) {
+  <p class="mp-erreur" role="alert"><mat-icon>error</mat-icon> {{ erreur() }}</p>
+}
+
+<section class="mp-carte">
+  @if (chargement()) {
+    <mat-progress-bar mode="indeterminate" />
+  } @else if (conges().length === 0) {
+    <div class="mp-vide">
+      <mat-icon>beach_access</mat-icon>
+      <p>{{ toutAfficher() ? 'Aucun congé enregistré.' : 'Aucun congé en ' + titreMois().toLowerCase() + '.' }}</p>
+    </div>
+  } @else {
+    <div class="mp-defilement">
+      <table class="mp-table">
+        <thead>
+          <tr>
+            <th>Agent</th>
+            <th>Type</th>
+            <th>Du</th>
+            <th>Au</th>
+            <th>Jours</th>
+            <th>Motif</th>
+            <th>PDF</th>
+            <th class="actions"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (c of conges(); track c.id) {
+            <tr>
+              <td>
+                <strong>{{ c.agent }}</strong>
+                <span class="secondaire">{{ c.agentNomComplet }}</span>
+              </td>
+              <td><span class="mp-badge type" [class]="c.type.toLowerCase()">{{ libelles[c.type] }}</span></td>
+              <td>{{ formatFr(c.dateDebut) }}</td>
+              <td>{{ formatFr(c.dateFin) }}</td>
+              <td>{{ c.nombreJours }}</td>
+              <td>{{ c.motif ?? '' }}</td>
+              <td>
+                @if (c.afficheSurPdf) {
+                  <mat-icon class="pdf" matTooltip="Apparaît dans le bloc « CONGÉS » du PDF">check_circle</mat-icon>
+                }
+              </td>
+              <td class="actions">
+                <button mat-icon-button (click)="modifier(c)" matTooltip="Modifier" aria-label="Modifier le congé"><mat-icon>edit</mat-icon></button>
+                <button mat-icon-button (click)="supprimer(c)" matTooltip="Supprimer" aria-label="Supprimer le congé"><mat-icon>delete</mat-icon></button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

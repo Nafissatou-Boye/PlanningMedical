@@ -1,0 +1,141 @@
+<header class="mp-entete-page">
+  <div>
+    <h1>{{ pageStagiaires() ? 'Stagiaires' : 'Personnel' }}</h1>
+    <p>
+      @if (pageStagiaires()) {
+        Les stagiaires ne sont proposés dans les plannings que pendant leur période de stage.
+      } @else {
+        Médecins, infirmiers, techniciens et stagiaires disponibles pour les gardes.
+      }
+    </p>
+  </div>
+  <button mat-flat-button class="mp-bouton-principal" (click)="ajouter()">
+    <mat-icon>person_add</mat-icon> {{ pageStagiaires() ? 'Ajouter un stagiaire' : 'Ajouter un membre' }}
+  </button>
+</header>
+
+<div class="mp-filtres">
+  <mat-form-field appearance="outline" class="recherche">
+    <mat-icon matPrefix>search</mat-icon>
+    <input
+      matInput
+      placeholder="Rechercher un nom, un matricule…"
+      [ngModel]="recherche()"
+      (ngModelChange)="recherche.set($event)"
+    />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-select [ngModel]="serviceId()" (ngModelChange)="serviceId.set($event)" placeholder="Tous les services">
+      <mat-option [value]="null">Tous les services</mat-option>
+      @for (s of services(); track s.id) {
+        <mat-option [value]="s.id">{{ s.nom }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  @if (!pageStagiaires()) {
+    <mat-button-toggle-group
+      [ngModel]="categorieFiltre()"
+      (ngModelChange)="categorieFiltre.set($event)"
+      aria-label="Catégorie"
+    >
+      <mat-button-toggle value="TOUS">Tous</mat-button-toggle>
+      <mat-button-toggle value="PERSONNEL">Personnel</mat-button-toggle>
+      <mat-button-toggle value="STAGIAIRE">Stagiaires</mat-button-toggle>
+    </mat-button-toggle-group>
+  }
+
+  <mat-button-toggle-group [ngModel]="statut()" (ngModelChange)="statut.set($event)" aria-label="Statut">
+    <mat-button-toggle value="actifs">Actifs</mat-button-toggle>
+    <mat-button-toggle value="inactifs">Inactifs</mat-button-toggle>
+    <mat-button-toggle value="tous">Tous</mat-button-toggle>
+  </mat-button-toggle-group>
+
+  <span class="compteur">{{ filtres().length }} résultat{{ filtres().length > 1 ? 's' : '' }}</span>
+</div>
+
+@if (erreur()) {
+  <p class="mp-erreur" role="alert"><mat-icon>error</mat-icon> {{ erreur() }}</p>
+}
+
+<section class="mp-carte">
+  @if (chargement()) {
+    <mat-progress-bar mode="indeterminate" />
+  } @else if (filtres().length === 0) {
+    <div class="mp-vide">
+      <mat-icon>{{ pageStagiaires() ? 'school' : 'group' }}</mat-icon>
+      <p>{{ agents().length === 0 ? "Personne n'est encore enregistré." : 'Aucun résultat pour ces filtres.' }}</p>
+      @if (agents().length === 0) {
+        <button mat-flat-button class="mp-bouton-principal" (click)="ajouter()">Ajouter la première personne</button>
+      }
+    </div>
+  } @else {
+    <div class="mp-defilement">
+      <table class="mp-table">
+        <thead>
+          <tr>
+            <th>Nom affiché</th>
+            <th>Profession</th>
+            <th>Service(s)</th>
+            @if (pageStagiaires() || categorieFiltre() !== 'PERSONNEL') {
+              <th>Stage</th>
+            }
+            <th>Contact</th>
+            <th>Statut</th>
+            <th class="actions"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (a of filtres(); track a.id) {
+            <tr>
+              <td class="nom">
+                <strong>{{ a.nomAffichage }}</strong>
+                <span class="secondaire">
+                  {{ a.prenom }} {{ a.nom }}{{ a.matricule ? ' · ' + a.matricule : '' }}
+                </span>
+              </td>
+              <td>
+                {{ a.profession ?? '—' }}
+                @if (a.categorie === 'STAGIAIRE' && !pageStagiaires()) {
+                  <span class="mp-badge stagiaire">Stagiaire</span>
+                }
+              </td>
+              <td>
+                <div class="services">
+                  @for (s of a.services; track s.id) {
+                    <span>{{ s.libelle }}</span>
+                  }
+                </div>
+              </td>
+              @if (pageStagiaires() || categorieFiltre() !== 'PERSONNEL') {
+                <td>
+                  @if (a.stage) {
+                    {{ formatFr(a.stage.dateDebut) }} → {{ formatFr(a.stage.dateFin) }}
+                    <span class="secondaire">
+                      {{ a.stage.niveau ?? '' }}{{ a.stage.enCours ? ' · en cours' : '' }}
+                    </span>
+                  } @else {
+                    —
+                  }
+                </td>
+              }
+              <td>
+                {{ a.telephone ?? '' }}
+                <span class="secondaire">{{ a.email ?? '' }}</span>
+              </td>
+              <td>
+                <span class="mp-statut" [class.inactif]="!a.actif">{{ a.actif ? 'Actif' : 'Inactif' }}</span>
+              </td>
+              <td class="actions">
+                <button mat-icon-button (click)="modifier(a)" matTooltip="Modifier" [attr.aria-label]="'Modifier ' + a.nomAffichage">
+                  <mat-icon>edit</mat-icon>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>
